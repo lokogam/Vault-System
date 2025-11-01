@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\FileController;
+use App\Http\Controllers\Api\FileRestrictionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
@@ -21,9 +23,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{id}/assign-group', [UserController::class, 'assignToGroup']);
     Route::post('/users/{id}/remove-group', [UserController::class, 'removeFromGroup']);
     Route::post('/users/{id}/assign-role', [UserController::class, 'assignRole']);
+    Route::put('/users/{user}/storage-limit', [UserController::class, 'updateStorageLimit']);
+    Route::get('/users/{user}/storage-info', [UserController::class, 'getStorageInfo']);
 
     // Rutas de grupos (la verificación de roles se hace en el controlador)
     Route::apiResource('groups', GroupController::class);
     Route::post('groups/{group}/assign-users', [GroupController::class, 'assignUsers']);
     Route::post('groups/{group}/remove-users', [GroupController::class, 'removeUsers']);
+
+    // Rutas de archivos
+    Route::group(['prefix' => 'files'], function () {
+        Route::get('/', [FileController::class, 'index']); // Mis archivos
+        Route::post('/upload', [FileController::class, 'store']); // Subir archivo
+        Route::get('/{file}/download', [FileController::class, 'download']); // Descargar archivo
+        Route::delete('/{file}', [FileController::class, 'destroy']); // Eliminar archivo
+        Route::get('/storage-info', [FileController::class, 'getStorageInfo']); // Info de almacenamiento
+    });
+
+    // Rutas de administración de archivos (solo administradores)
+    Route::group(['prefix' => 'admin/files', 'middleware' => 'role:Administrador'], function () {
+        Route::get('/', [FileController::class, 'adminIndex']); // Todos los archivos
+        Route::delete('/{file}', [FileController::class, 'adminDestroy']); // Eliminar cualquier archivo
+    });
+
+    // Rutas de restricciones de archivos (solo administradores)
+    Route::group(['prefix' => 'file-restrictions', 'middleware' => 'role:Administrador'], function () {
+        Route::get('/', [FileRestrictionController::class, 'index']);
+        Route::post('/', [FileRestrictionController::class, 'store']);
+        Route::put('/{restriction}', [FileRestrictionController::class, 'update']);
+        Route::delete('/{restriction}', [FileRestrictionController::class, 'destroy']);
+    });
 });

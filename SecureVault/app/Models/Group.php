@@ -9,6 +9,7 @@ class Group extends Model
      protected $fillable = [
         'name',
         'description',
+        'storage_limit'
     ];
 
     public function users()

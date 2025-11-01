@@ -147,4 +147,59 @@ class UserController extends Controller
             'user' => $user->load('roles')
         ]);
     }
+
+    public function updateStorageLimit(Request $request, $userId)
+    {
+        // Solo administradores pueden actualizar límites
+        if (!$request->user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $user = User::findOrFail($userId);
+
+        $request->validate([
+            'storage_limit' => 'nullable|integer|min:1048576' // Mínimo 1MB
+        ]);
+
+        $user->update([
+            'storage_limit' => $request->storage_limit
+        ]);
+
+        return response()->json([
+            'message' => 'Límite de almacenamiento actualizado exitosamente',
+            'user' => $user
+        ]);
+    }
+
+    public function getStorageInfo($userId)
+    {
+        // Solo administradores pueden ver información de almacenamiento
+        if (!request()->user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $user = User::findOrFail($userId);
+
+        return response()->json([
+            'storage_info' => [
+                'used' => $user->storage_used ?? 0,
+                'limit' => $user->getEffectiveStorageLimit(),
+                'formatted_used' => $this->formatBytes($user->storage_used ?? 0),
+                'formatted_limit' => $this->formatBytes($user->getEffectiveStorageLimit()),
+                'percentage' => $user->getEffectiveStorageLimit() > 0
+                    ? round((($user->storage_used ?? 0) / $user->getEffectiveStorageLimit()) * 100, 2)
+                    : 0
+            ]
+        ]);
+    }
+
+    private function formatBytes($size, $precision = 2)
+    {
+        if ($size == 0) return '0 B';
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $factor = floor(log($size, 1024));
+
+        return round($size / pow(1024, $factor), $precision) . ' ' . $units[$factor];
+    }
 }
