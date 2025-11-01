@@ -8,6 +8,7 @@ use App\Models\FileRestriction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
 class FileController extends Controller
@@ -179,12 +180,31 @@ class FileController extends Controller
         $tempPath = $uploadedFile->getPathname();
         $zip = new ZipArchive();
 
+        \Log::info('ZIP Validation: Analizando archivo ZIP', [
+            'original_name' => $uploadedFile->getClientOriginalName(),
+            'size' => $uploadedFile->getSize()
+        ]);
+
         if ($zip->open($tempPath) === TRUE) {
+            \Log::info('ZIP Validation: Archivo ZIP abierto exitosamente', [
+                'num_files' => $zip->numFiles
+            ]);
+
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $filename = $zip->getNameIndex($i);
                 $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
+                \Log::info('ZIP Validation: Analizando archivo interno', [
+                    'filename' => $filename,
+                    'extension' => $extension
+                ]);
+
                 if (FileRestriction::isProhibited($extension)) {
+                    \Log::warning('ZIP Validation: Archivo prohibido encontrado', [
+                        'filename' => $filename,
+                        'extension' => $extension
+                    ]);
+
                     $zip->close();
                     return [
                         'valid' => false,
@@ -193,9 +213,12 @@ class FileController extends Controller
                 }
             }
             $zip->close();
+
+            \Log::info('ZIP Validation: Archivo ZIP validado exitosamente');
             return ['valid' => true];
         }
 
+        \Log::error('ZIP Validation: No se pudo analizar el archivo ZIP');
         return [
             'valid' => false,
             'message' => 'Error: No se pudo analizar el archivo ZIP'
@@ -251,7 +274,7 @@ class FileController extends Controller
         }
 
         // Eliminar archivo físico
-        Storage::disk('private')->delete($file->path);
+        Storage::disk('public')->delete($file->path);
 
         // Actualizar storage_used del usuario
         $file->user->decrement('storage_used', $file->size);
