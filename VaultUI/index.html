@@ -1,13 +1,214 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VaultUI</title>
+    <title>SecureVault - Sistema de Almacenamiento</title>
   </head>
-  <body>
-    <div id="app"></div>
+  <body class="bg-gray-100 min-h-screen">
+    <div id="app">
+      <!-- Página de Login -->
+      <div id="login-page" class="page hidden">
+        <div class="min-h-screen flex items-center justify-center">
+          <div class="max-w-md w-full space-y-8">
+            <div>
+              <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Iniciar Sesión
+              </h2>
+              <p class="mt-2 text-center text-sm text-gray-600">
+                Accede a tu cuenta de SecureVault
+              </p>
+            </div>
+            <form id="login-form" class="mt-8 space-y-6">
+              <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                  <label for="login-email" class="sr-only">Email</label>
+                  <input id="login-email" name="email" type="email" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Correo electrónico">
+                </div>
+                <div>
+                  <label for="login-password" class="sr-only">Contraseña</label>
+                  <input id="login-password" name="password" type="password" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Contraseña">
+                </div>
+              </div>
+
+              <div id="login-error" class="hidden text-red-600 text-sm text-center"></div>
+
+              <div>
+                <button type="submit" id="login-btn"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Iniciar Sesión
+                </button>
+              </div>
+
+              <div class="text-center">
+                <span class="text-sm text-gray-600">¿No tienes cuenta?</span>
+                <button type="button" id="goto-register" class="font-medium text-indigo-600 hover:text-indigo-500">
+                  Regístrate aquí
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Página de Registro -->
+      <div id="register-page" class="page hidden">
+        <div class="min-h-screen flex items-center justify-center">
+          <div class="max-w-md w-full space-y-8">
+            <div>
+              <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Crear Cuenta
+              </h2>
+              <p class="mt-2 text-center text-sm text-gray-600">
+                Únete a SecureVault
+              </p>
+            </div>
+            <form id="register-form" class="mt-8 space-y-6">
+              <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                  <label for="register-name" class="sr-only">Nombre</label>
+                  <input id="register-name" name="name" type="text" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Nombre completo">
+                </div>
+                <div>
+                  <label for="register-email" class="sr-only">Email</label>
+                  <input id="register-email" name="email" type="email" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Correo electrónico">
+                </div>
+                <div>
+                  <label for="register-password" class="sr-only">Contraseña</label>
+                  <input id="register-password" name="password" type="password" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Contraseña">
+                </div>
+                <div>
+                  <label for="register-password-confirm" class="sr-only">Confirmar Contraseña</label>
+                  <input id="register-password-confirm" name="password_confirmation" type="password" required 
+                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                         placeholder="Confirmar contraseña">
+                </div>
+              </div>
+
+              <div id="register-error" class="hidden text-red-600 text-sm text-center"></div>
+
+              <div>
+                <button type="submit" id="register-btn"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Crear Cuenta
+                </button>
+              </div>
+
+              <div class="text-center">
+                <span class="text-sm text-gray-600">¿Ya tienes cuenta?</span>
+                <button type="button" id="goto-login" class="font-medium text-indigo-600 hover:text-indigo-500">
+                  Inicia sesión aquí
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="dashboard-page" class="page hidden">
+        <nav class="bg-indigo-600 shadow">
+          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 justify-between">
+              <div class="flex items-center">
+                <h1 class="text-xl font-semibold text-white">SecureVault</h1>
+              </div>
+              <div class="flex items-center space-x-4">
+                <span id="user-name" class="text-white text-sm"></span>
+                <button id="logout-btn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-md text-sm font-medium">
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+          <div class="px-4 py-6 sm:px-0">
+            <div class="border-4 border-dashed border-gray-200 rounded-lg p-8">
+              <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Bienvenido a tu Dashboard</h2>
+                <p class="text-gray-600 mb-8">Aquí podrás gestionar tus archivos de forma segura</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                          <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Mis Archivos</dt>
+                            <dd class="text-lg font-medium text-gray-900">0</dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                          <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Almacenamiento Usado</dt>
+                            <dd class="text-lg font-medium text-gray-900">0 MB / 10 MB</dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                          <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Grupo</dt>
+                            <dd class="text-lg font-medium text-gray-900">Sin asignar</dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-8">
+                  <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                    Subir Archivo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
