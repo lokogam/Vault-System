@@ -13,7 +13,6 @@ export const PageManager = {
   },
 
   goToLogin() {
-    console.log('🔄 Navegando al login...');
     this.showPage('login');
     
     // Actualizar URL si AppRouter está disponible
@@ -23,7 +22,6 @@ export const PageManager = {
   },
 
   goToRegister() {
-    console.log('🔄 Navegando al registro...');
     this.showPage('register');
     
     // Actualizar URL si AppRouter está disponible
@@ -33,15 +31,11 @@ export const PageManager = {
   },
 
   goToDashboard() {
-    console.log('🎯 PageManager.goToDashboard() ejecutado');
     this.showPage('dashboard');
 
     // Asegurar inicialización del dashboard SOLO si no está inicializado
     if (window.dashboardManager && !window.dashboardManager.initialized) {
-      console.log('🔄 Inicializando dashboard desde PageManager...');
       window.dashboardManager.init();
-    } else {
-      console.log('✅ Dashboard ya inicializado o no disponible');
     }
   },
 

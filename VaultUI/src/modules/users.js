@@ -22,7 +22,6 @@ export const UserManager = {
         message: 'Obteniendo lista de usuarios...'
       });
 
-      console.log('📦 Respuesta completa de usuarios:', response);
 
       if (response.success) {
         // Manejar diferentes estructuras de respuesta de manera robusta
@@ -31,24 +30,19 @@ export const UserManager = {
         if (response.data && response.data.data) {
           // Estructura paginada de Laravel: response.data.data
           users = response.data.data;
-          console.log('✅ Usuarios encontrados en response.data.data');
         } else if (response.data && response.data.users) {
           // Estructura con key 'users': response.data.users
           users = response.data.users;
-          console.log('✅ Usuarios encontrados en response.data.users');
         } else if (response.data && Array.isArray(response.data)) {
           // Array directo: response.data
           users = response.data;
-          console.log('✅ Usuarios encontrados en response.data (array directo)');
         } else if (response.users && Array.isArray(response.users)) {
           // Fallback: response.users
           users = response.users;
-          console.log('✅ Usuarios encontrados en response.users');
         }
 
         if (users && Array.isArray(users)) {
           this.users = users;
-          console.log(`📊 ${users.length} usuarios cargados exitosamente`);
           this.renderUsersTable();
         } else {
           console.error('❌ No se encontraron usuarios válidos en la respuesta:', response);
@@ -88,7 +82,6 @@ export const UserManager = {
 
     tbody.innerHTML = '';
 
-    console.log(`📊 Renderizando tabla con ${this.users.length} usuarios`);
 
     if (this.users.length === 0) {
       if (tableContainer) tableContainer.classList.add('hidden');
@@ -298,73 +291,6 @@ export const UserManager = {
     }
   },
 
-  // Función de debugging para verificar el estado de los usuarios
-  debugUsersState() {
-    console.log('🔍 DEBUG: Estado actual del UserManager');
-    console.log('- this.users:', this.users);
-    console.log('- this.users type:', typeof this.users);
-    console.log('- this.users.length:', this.users?.length);
-    console.log('- Array.isArray(this.users):', Array.isArray(this.users));
-
-    // Verificar elementos DOM
-    console.log('🔍 DEBUG: Elementos DOM');
-    console.log('- users-tbody:', !!document.getElementById('users-tbody'));
-    console.log('- users-table-container:', !!document.getElementById('users-table-container'));
-    console.log('- no-users:', !!document.getElementById('no-users'));
-    console.log('- users-loading:', !!document.getElementById('users-loading'));
-
-    // Verificar permisos
-    console.log('🔍 DEBUG: Permisos');
-    console.log('- window.Auth:', !!window.Auth);
-    console.log('- window.Auth.isAdmin():', window.Auth?.isAdmin());
-    console.log('- window.Http:', !!window.Http);
-
-    if (window.NotificationManager) {
-      window.NotificationManager.showInfo('Estado de usuarios verificado. Revisa la consola para detalles.');
-    }
-  },
-
-  // Función para probar la carga de usuarios
-  async testLoadUsers() {
-    console.log('🧪 Probando carga de usuarios...');
-
-    if (!window.Auth?.isAdmin()) {
-      console.log('❌ Usuario no es admin, no puede cargar usuarios');
-      window.NotificationManager?.showWarning('Solo los administradores pueden gestionar usuarios');
-      return;
-    }
-
-    try {
-      console.log('📡 Haciendo petición de prueba a /users...');
-      const response = await window.Http.get('/users');
-      console.log('📦 Respuesta de prueba:', response);
-
-      // Analizar la estructura de respuesta
-      console.log('🔍 Analizando estructura:');
-      console.log('- response.success:', response.success);
-      console.log('- response.data:', response.data);
-      console.log('- typeof response.data:', typeof response.data);
-
-      if (response.data) {
-        console.log('- response.data.data:', response.data.data);
-        console.log('- response.data.users:', response.data.users);
-        console.log('- Array.isArray(response.data):', Array.isArray(response.data));
-
-        if (response.data.data) {
-          console.log('- response.data.data.length:', response.data.data.length);
-        }
-        if (response.data.users) {
-          console.log('- response.data.users.length:', response.data.users.length);
-        }
-      }
-
-      window.NotificationManager?.showSuccess('Prueba de carga completada. Revisa la consola.');
-
-    } catch (error) {
-      console.error('❌ Error en prueba de usuarios:', error);
-      window.NotificationManager?.showError('Error en prueba: ' + error.message);
-    }
-  },
 
   setupEventListeners() {
     // Botón de actualizar

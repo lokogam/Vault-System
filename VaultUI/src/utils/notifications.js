@@ -274,7 +274,6 @@ export const NotificationManager = {
 
   // Función de demostración para probar todos los tipos de notificaciones
   demo() {
-    console.log('🎨 Iniciando demostración de notificaciones mejoradas...');
     
     this.showSuccess('¡Usuario asignado al grupo exitosamente! Los cambios se han guardado.');
     

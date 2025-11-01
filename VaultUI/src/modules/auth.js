@@ -89,63 +89,44 @@ export const Auth = {
   },
 
   checkAuthStatus() {
-    console.log('🔍 ===== AUTH STATUS CHECK INICIADO =====');
     const token = Storage.getToken();
     const user = Storage.getUser();
     const currentPage = window.AppRouter ? window.AppRouter.getCurrentPage() : 'login';
     
-    console.log('  - Token:', !!token);
-    console.log('  - User:', !!user);
-    console.log('  - Current page:', currentPage);
-    console.log('  - AppRouter available:', !!window.AppRouter);
-    console.log('  - Dashboard initialized:', window.dashboardManager?.initialized);
     
     // Verificar que AMBOS token y usuario estén presentes
     if (token && user) {
-      console.log('✅ Usuario autenticado correctamente (token + user)');
       // Usuario autenticado
       if (currentPage === 'login' || currentPage === 'register') {
-        console.log('🔄 Redirigiendo a dashboard desde', currentPage);
         // Si está en login/register, redirigir a dashboard
         window.PageManager.goToDashboard();
       } else {
-        console.log('📱 Manteniendo en dashboard, verificando inicialización...');
         // Si está en dashboard, mantener la página actual
         window.PageManager.showPage('dashboard');
         // Verificar si el dashboard ya está inicializado para evitar re-inicializaciones
         if (window.dashboardManager && !window.dashboardManager.initialized) {
-          console.log('🚀 Inicializando dashboard manager por primera vez...');
           setTimeout(() => {
             window.dashboardManager.init();
           }, 100);
-        } else {
-          console.log('✅ Dashboard ya está inicializado');
-        }
+        } 
       }
     } else {
       // Si falta token o usuario, limpiar todo y redirigir a login
       if (!token && user) {
-        console.log('⚠️ Usuario sin token - limpiando datos y redirigiendo');
         Storage.clearAll();
       } else if (token && !user) {
-        console.log('⚠️ Token sin usuario - limpiando datos y redirigiendo');
         Storage.clearAll();
-      } else {
-        console.log('❌ Usuario NO autenticado');
-      }
+      } 
       
       // Usuario no autenticado
       if (currentPage === 'dashboard') {
-        console.log('🔄 Redirigiendo a login desde dashboard');
         // Si está en dashboard sin auth, redirigir a login
         window.PageManager.goToLogin();
       } else {
-        console.log('📱 Manteniendo en', currentPage);
         // Si está en login/register, mantener la página actual
         window.PageManager.showPage(currentPage);
       }
     }
-    console.log('🔍 ===== AUTH STATUS CHECK TERMINADO =====');
   },
 
   isAdmin() {

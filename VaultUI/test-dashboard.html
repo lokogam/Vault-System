@@ -40,7 +40,7 @@
         // Mock de funciones necesarias
         window.Auth = {
             checkAuthStatus: () => {
-                console.log("✅ Auth.checkAuthStatus() ejecutado");
+                // console.log("✅ Auth.checkAuthStatus() ejecutado");
                 document.getElementById('dashboard-container').classList.remove('hidden');
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('register-container').classList.add('hidden');
@@ -49,7 +49,7 @@
         
         window.Http = {
             get: async (url) => {
-                console.log(`📡 Mock GET request to: ${url}`);
+                // console.log(`📡 Mock GET request to: ${url}`);
                 if (url === '/files') {
                     return {
                         success: true,
@@ -74,7 +74,7 @@
                 const response = await fetch(path);
                 const html = await response.text();
                 document.getElementById(targetId).innerHTML = html;
-                console.log(`✅ Cargado: ${path} -> ${targetId}`);
+                // console.log(`✅ Cargado: ${path} -> ${targetId}`);
                 return true;
             } catch (error) {
                 console.error(`❌ Error cargando ${path}:`, error);

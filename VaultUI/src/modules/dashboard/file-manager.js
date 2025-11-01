@@ -7,7 +7,6 @@ export class FileManager {
 
   // === FILE MANAGEMENT ===
   async loadFiles() {
-    console.log('🗂️ INICIANDO CARGA DE ARCHIVOS...');
 
     const loadingElement = document.getElementById('files-loading');
     const emptyElement = document.getElementById('files-empty');
@@ -16,7 +15,6 @@ export class FileManager {
     // Mostrar loading
     if (loadingElement) {
       loadingElement.classList.remove('hidden');
-      console.log('✅ Mostrando loading de archivos');
     } else {
       console.error('❌ NO SE ENCONTRÓ files-loading');
     }
@@ -25,30 +23,23 @@ export class FileManager {
     if (tableElement) tableElement.classList.add('hidden');
 
     try {
-      console.log('📡 Haciendo petición a /files...');
       const response = await window.Http.get('/files');
-      console.log('📦 Respuesta recibida:', response);
 
       if (response.success) {
         this.files = response.data?.files || response.files || [];
-        console.log(`📁 Archivos encontrados: ${this.files.length}`);
 
         // Actualizar información de almacenamiento si está disponible
         if (response.storage_info && window.dashboardManager) {
-          console.log('📊 Actualizando información de almacenamiento desde loadFiles');
           window.dashboardManager.updateStorageDisplay(response.storage_info);
         }
 
         if (this.files.length === 0) {
-          console.log('📭 No hay archivos, mostrando mensaje vacío');
           if (emptyElement) emptyElement.classList.remove('hidden');
         } else {
-          console.log('📋 Renderizando tabla de archivos...');
           this.renderFilesTable();
           if (tableElement) tableElement.classList.remove('hidden');
         }
       } else {
-        console.log('❌ La petición no fue exitosa');
         this.files = [];
         if (emptyElement) emptyElement.classList.remove('hidden');
       }
@@ -72,7 +63,6 @@ export class FileManager {
     } finally {
       if (loadingElement) {
         loadingElement.classList.add('hidden');
-        console.log('✅ Loading de archivos ocultado');
       }
     }
   }
@@ -127,7 +117,6 @@ export class FileManager {
 
   // Mostrar modal de confirmación para eliminar archivo
   showDeleteModal(fileId, fileName) {
-    console.log('🗑️ Mostrando modal de eliminación para archivo:', { fileId, fileName });
     
     const modal = document.getElementById('delete-modal');
     const filenameSpan = document.getElementById('delete-filename');
@@ -162,26 +151,21 @@ export class FileManager {
       modal.classList.add('hidden');
     });
     
-    console.log('✅ Modal de eliminación mostrado');
   }
 
   // Eliminar archivo
   async deleteFile(fileId, fileName) {
-    console.log('🗑️ Eliminando archivo:', { fileId, fileName });
 
     try {
       const response = await window.Http.delete(`/files/${fileId}`);
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
-        console.log('✅ Archivo eliminado exitosamente');
         window.NotificationManager?.showSuccess(`Archivo "${fileName}" eliminado correctamente`) || alert(`Archivo "${fileName}" eliminado correctamente`);
         
         // Recargar la lista de archivos
         await this.loadFiles();
         await window.dashboardManager?.loadStorageInfo();
       } else {
-        console.log('❌ Error en respuesta:', response);
         const errorMsg = 'Error al eliminar archivo: ' + (response.error || response.message || 'Error desconocido');
         window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
       }
@@ -194,7 +178,6 @@ export class FileManager {
 
   // Descargar archivo
   async downloadFile(fileId, fileName) {
-    console.log('⬇️ Descargando archivo:', { fileId, fileName });
 
     try {
       // Para descargas de archivos, usar fetch directo en lugar de window.Http
@@ -208,12 +191,10 @@ export class FileManager {
         }
       });
 
-      console.log('📦 Respuesta de descarga:', response.status, response.headers.get('content-type'));
 
       if (response.ok) {
         // Obtener el archivo como blob
         const blob = await response.blob();
-        console.log('✅ Archivo descargado como blob:', blob.size, 'bytes');
         
         // Crear URL temporal para descarga
         const url = window.URL.createObjectURL(blob);
@@ -229,8 +210,7 @@ export class FileManager {
         // Limpiar URL temporal
         window.URL.revokeObjectURL(url);
         
-        window.NotificationManager?.showSuccess(`Descargando archivo: ${fileName}`) || 
-        console.log(`✅ Descarga iniciada: ${fileName}`);
+        window.NotificationManager?.showSuccess(`Descargando archivo: ${fileName}`);
       } else {
         // Si hay error, intentar leer como JSON para obtener el mensaje de error
         try {
@@ -285,7 +265,6 @@ export class FileManager {
   }
 
   async uploadFile(file) {
-    console.log('📤 Iniciando subida de archivo:', file.name);
 
     // Validar tamaño máximo (50MB)
     const maxSize = 50 * 1024 * 1024; // 50MB
@@ -309,9 +288,7 @@ export class FileManager {
     try {
       const formData = new FormData();
       formData.append('file', file);
-
-      console.log('📡 Enviando archivo al servidor...');
-      
+     
       // Simular progreso mientras se procesa
       if (progressBar && progressPercentage) {
         let progress = 0;
@@ -331,7 +308,6 @@ export class FileManager {
       // Usar directamente window.Http para subida de archivos
       const response = await window.Http.postFormData('/files/upload', formData);
 
-      console.log('📦 Respuesta completa:', response);
 
       // Completar progreso
       if (progressBar && progressPercentage) {
@@ -340,14 +316,12 @@ export class FileManager {
       }
 
       if (response.success || response.message) {
-        console.log('✅ Archivo subido exitosamente');
         window.NotificationManager?.showSuccess(`Archivo "${file.name}" subido correctamente`) || alert(`Archivo "${file.name}" subido correctamente`);
         
         // Recargar archivos y información de almacenamiento
         await this.loadFiles();
         await window.dashboardManager?.loadStorageInfo();
       } else {
-        console.log('❌ Error en subida:', response);
         const errorMsg = response.message || response.error || 'Error al subir archivo';
         window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
       }

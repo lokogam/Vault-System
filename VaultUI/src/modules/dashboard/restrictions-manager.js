@@ -7,7 +7,6 @@ export class RestrictionsManager {
 
   // === RESTRICTIONS MANAGEMENT (ADMIN) ===
   async loadRestrictions() {
-    console.log('🔍 Cargando restricciones de archivo...');
 
     const loadingElement = document.getElementById('restrictions-loading');
     const tableElement = document.getElementById('restrictions-table');
@@ -16,9 +15,7 @@ export class RestrictionsManager {
     if (tableElement) tableElement.classList.add('hidden');
 
     try {
-      console.log('📡 Solicitando restricciones al servidor...');
       const response = await window.Http.get('/file-restrictions');
-      console.log('📦 Respuesta completa:', response);
 
       // Manejo robusto de diferentes estructuras de respuesta
       let restrictions = [];
@@ -27,20 +24,16 @@ export class RestrictionsManager {
         // Con el Http utility corregido, la estructura debería ser response.data.restrictions
         if (response.data && response.data.restrictions) {
           restrictions = response.data.restrictions;
-          console.log('✅ Restricciones encontradas en response.data.restrictions');
         } else if (response.restrictions) {
           restrictions = response.restrictions;
-          console.log('✅ Restricciones encontradas en response.restrictions');
         } else if (Array.isArray(response.data)) {
           restrictions = response.data;
-          console.log('✅ Restricciones encontradas en response.data (array)');
         } else {
           console.warn('⚠️ No se encontraron restricciones en la respuesta');
           console.warn('📋 Estructura de respuesta:', Object.keys(response));
           console.warn('📋 response.data:', response.data);
         }
 
-        console.log(`📊 Restricciones cargadas: ${restrictions.length}`);
         this.restrictions = restrictions;
         this.renderRestrictionsTable(restrictions);
       } else {
@@ -57,7 +50,6 @@ export class RestrictionsManager {
   }
 
   renderRestrictionsTable(restrictions) {
-    console.log('🔄 Renderizando tabla de restricciones...');
     const tbody = document.getElementById('restrictions-tbody');
     if (!tbody) {
       console.error('❌ No se encontró el elemento restrictions-tbody');
@@ -75,7 +67,6 @@ export class RestrictionsManager {
       return;
     }
 
-    console.log(`📊 Renderizando ${restrictionsToRender.length} restricciones`);
 
     if (restrictionsToRender.length === 0) {
       const row = document.createElement('tr');
@@ -95,7 +86,6 @@ export class RestrictionsManager {
     }
 
     restrictionsToRender.forEach((restriction, index) => {
-      console.log(`📝 Procesando restricción ${index + 1}:`, restriction);
 
       // Validar que la restricción tenga los campos necesarios
       if (!restriction.id || !restriction.extension) {
@@ -134,7 +124,6 @@ export class RestrictionsManager {
       tbody.appendChild(row);
     });
 
-    console.log('✅ Tabla de restricciones renderizada correctamente');
   }
 
   // === RESTRICTIONS MANAGEMENT METHODS ===
@@ -164,7 +153,6 @@ export class RestrictionsManager {
 
   // Mostrar modal para agregar restricción
   showAddRestrictionModal() {
-    console.log('📝 Mostrando modal para agregar restricción');
 
     const modal = document.getElementById('restriction-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -186,7 +174,6 @@ export class RestrictionsManager {
     modal.classList.remove('hidden');
     if (extensionInput) extensionInput.focus();
     
-    console.log('✅ Modal de restricción mostrado');
   }
 
   // Ocultar modal de restricciones
@@ -194,14 +181,12 @@ export class RestrictionsManager {
     const modal = document.getElementById('restriction-modal');
     if (modal) {
       modal.classList.add('hidden');
-      console.log('✅ Modal de restricción ocultado');
     }
   }
 
   // Manejar envío del formulario de restricciones
   async handleRestrictionSubmit(e) {
     e.preventDefault();
-    console.log('📝 Procesando envío de restricción...');
 
     const extensionInput = document.getElementById('extension-input');
     const statusSelect = document.getElementById('status-select');
@@ -216,7 +201,6 @@ export class RestrictionsManager {
     const isProhibited = statusSelect.value === '1'; // true si es prohibido
     const description = descriptionInput?.value.trim() || '';
 
-    console.log('📋 Datos del formulario:', { extension, isProhibited, description });
 
     if (!extension) {
       const msg = 'Por favor ingresa una extensión de archivo';
@@ -232,24 +216,20 @@ export class RestrictionsManager {
     }
 
     try {
-      console.log('🔄 Enviando restricción al servidor...');
       const response = await window.Http.post('/file-restrictions', {
         extension: extension,
         is_prohibited: isProhibited,
         description: description || null
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message || response.id) {
-        console.log('✅ Restricción creada exitosamente');
         const statusText = isProhibited ? 'prohibida' : 'permitida';
         window.NotificationManager?.showSuccess(`Extensión .${extension} marcada como ${statusText}`) || alert(`Extensión .${extension} marcada como ${statusText}`);
         
         this.hideRestrictionModal();
         await this.loadRestrictions(); // Recargar tabla
       } else {
-        console.log('❌ Error en respuesta:', response);
         const errorMsg = 'Error al crear restricción: ' + (response.error || response.message || 'Error desconocido');
         window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
       }
@@ -269,7 +249,6 @@ export class RestrictionsManager {
 
   // Mostrar modal de confirmación para eliminar restricción
   showDeleteRestrictionModal(restrictionId, extension) {
-    console.log('🗑️ Mostrando modal de eliminación para restricción:', { restrictionId, extension });
     
     const modal = document.getElementById('delete-restriction-modal');
     const extensionSpan = document.getElementById('restriction-extension');
@@ -304,31 +283,24 @@ export class RestrictionsManager {
       modal.classList.add('hidden');
     });
     
-    console.log('✅ Modal de eliminación de restricción mostrado');
   }
 
   // Eliminar restricción de archivo
   async deleteRestriction(restrictionId) {
-    console.log('🗑️ Eliminando restricción:', restrictionId);
 
     try {
-      console.log('🔄 Enviando petición de eliminación...');
       const response = await window.Http.delete(`/file-restrictions/${restrictionId}`);
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
-        console.log('✅ Restricción eliminada exitosamente');
         window.NotificationManager?.showSuccess('Restricción eliminada correctamente') || alert('Restricción eliminada correctamente');
         
         // Recargar la tabla de restricciones
         await this.loadRestrictions();
       } else {
-        console.log('❌ Error en respuesta:', response);
         const errorMsg = 'Error al eliminar restricción: ' + (response.error || response.message || 'Error desconocido');
         window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
       }
     } catch (error) {
-      console.error('❌ Error deleting restriction:', error);
       const errorMsg = 'Error al eliminar restricción: ' + (error.message || 'Error de conexión');
       window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
     }

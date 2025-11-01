@@ -9,7 +9,6 @@ export class AdminFileManager {
   
   // Cargar todos los archivos del sistema (solo admin)
   async loadAllFiles() {
-    console.log('🔍 Cargando todos los archivos del sistema (admin)...');
 
     const loadingElement = document.getElementById('all-files-loading');
     const tableElement = document.getElementById('all-files-table');
@@ -22,9 +21,7 @@ export class AdminFileManager {
     if (statsElement) statsElement.classList.add('hidden');
 
     try {
-      console.log('📡 Solicitando todos los archivos al servidor...');
       const response = await window.Http.get('/admin/files');
-      console.log('📦 Respuesta de archivos admin:', response);
 
       if (response.success || Array.isArray(response)) {
         // Manejar diferentes estructuras de respuesta
@@ -38,7 +35,6 @@ export class AdminFileManager {
           } else if (response.data.data && Array.isArray(response.data.data)) {
             // Respuesta paginada de Laravel: response.data.data
             files = response.data.data;
-            console.log('✅ Archivos encontrados en respuesta paginada Laravel');
           } else {
             console.error('❌ Estructura de respuesta no reconocida en success:', response.data);
             files = [];
@@ -49,13 +45,11 @@ export class AdminFileManager {
         } else if (response.data && Array.isArray(response.data)) {
           // Respuesta paginada directa: response.data
           files = response.data;
-          console.log('✅ Archivos encontrados en response.data (paginado)');
         } else {
           console.error('❌ Estructura de respuesta no reconocida:', response);
           files = [];
         }
 
-        console.log(`📊 ${files.length} archivos encontrados en el sistema`);
         
         this.allFiles = files;
         this.renderAllFilesTable(files);
@@ -82,7 +76,6 @@ export class AdminFileManager {
 
   // Renderizar tabla de todos los archivos
   renderAllFilesTable(files) {
-    console.log('🔄 Renderizando tabla de todos los archivos...');
     const tbody = document.getElementById('all-files-tbody');
     if (!tbody) {
       console.error('❌ No se encontró el elemento all-files-tbody');
@@ -96,10 +89,8 @@ export class AdminFileManager {
       files = [];
     }
 
-    console.log(`📊 Renderizando ${files.length} archivos del sistema`);
 
     files.forEach((file, index) => {
-      console.log(`📝 Procesando archivo ${index + 1}:`, file);
 
       if (!file.id || !file.original_name) {
         console.warn('⚠️ Archivo inválido (falta id o original_name):', file);
@@ -159,7 +150,6 @@ export class AdminFileManager {
       tbody.appendChild(row);
     });
 
-    console.log('✅ Tabla de todos los archivos renderizada correctamente');
   }
 
   // Renderizar estadísticas de archivos
@@ -182,32 +172,25 @@ export class AdminFileManager {
     if (totalStorageElement) totalStorageElement.textContent = this.formatBytes(totalStorage);
     if (totalUsersElement) totalUsersElement.textContent = uniqueUsers.toLocaleString();
 
-    console.log('📊 Estadísticas actualizadas:', { totalFiles, totalStorage, uniqueUsers });
   }
 
   // Eliminar archivo como admin
   async adminDeleteFile(fileId, fileName, userName) {
-    console.log('🗑️ Admin eliminando archivo:', { fileId, fileName, userName });
     
     const confirmMsg = `¿Estás seguro de que quieres eliminar el archivo "${fileName}" del usuario ${userName}?\n\nEsta acción no se puede deshacer.`;
     if (!(window.confirm ? confirm(confirmMsg) : true)) {
-      console.log('❌ Eliminación cancelada por el administrador');
       return;
     }
 
     try {
-      console.log('🔄 Enviando petición de eliminación admin...');
       const response = await window.Http.delete(`/admin/files/${fileId}`);
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
-        console.log('✅ Archivo eliminado exitosamente por admin');
         window.NotificationManager?.showSuccess(`Archivo "${fileName}" eliminado del sistema`) || alert(`Archivo "${fileName}" eliminado del sistema`);
         
         // Recargar la tabla de archivos
         await this.loadAllFiles();
       } else {
-        console.log('❌ Error en respuesta:', response);
         const errorMsg = 'Error al eliminar archivo: ' + (response.error || response.message || 'Error desconocido');
         window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
       }

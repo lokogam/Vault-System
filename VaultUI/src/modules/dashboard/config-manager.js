@@ -10,37 +10,29 @@ export class ConfigManager {
 
   // Cargar usuarios para configuración
   async loadUsersForConfig() {
-    console.log('🔍 Cargando usuarios para configuración...');
     try {
       const response = await window.Http.get('/users');
-      console.log('📦 Respuesta de usuarios:', response);
 
       let users = null;
 
       if (response.success && response.data && response.data.users) {
         // Nueva estructura: response.data.users
         users = response.data.users;
-        console.log('✅ Usuarios encontrados en response.data.users');
       } else if (response.success && response.data && response.data.data) {
         // Estructura: response.data.data
         users = response.data.data;
-        console.log('✅ Usuarios encontrados en response.data.data');
       } else if (response.success && Array.isArray(response.data)) {
         // Estructura: response.data (array directo)
         users = response.data;
-        console.log('✅ Usuarios encontrados en response.data (array)');
       } else if (Array.isArray(response)) {
         // Respuesta directa como array
         users = response;
-        console.log('✅ Usuarios encontrados en respuesta directa (array)');
       } else if (response.users) {
         // Estructura: response.users
         users = response.users;
-        console.log('✅ Usuarios encontrados en response.users');
       }
 
       if (users && Array.isArray(users)) {
-        console.log(`👥 ${users.length} usuarios encontrados para configuración`);
         this.populateUserSelect(users);
         this.renderUsersList(users);
       } else {
@@ -55,33 +47,26 @@ export class ConfigManager {
 
   // Cargar grupos para configuración
   async loadGroupsForConfig() {
-    console.log('🔍 Cargando grupos para configuración...');
     try {
       const response = await window.Http.get('/groups');
-      console.log('📦 Respuesta de grupos:', response);
 
       let groups = null;
 
       if (response.success && response.data && response.data.data) {
         // Datos en response.data.data
         groups = response.data.data;
-        console.log('✅ Grupos encontrados en response.data.data');
       } else if (response.success && response.data && Array.isArray(response.data)) {
         // Datos en response.data (array directo)
         groups = response.data;
-        console.log('✅ Grupos encontrados en response.data (array)');
       } else if (Array.isArray(response)) {
         // Respuesta directa como array
         groups = response;
-        console.log('✅ Grupos encontrados en respuesta directa (array)');
       } else if (response.data && Array.isArray(response.data)) {
         // Grupos en response.data
         groups = response.data;
-        console.log('✅ Grupos encontrados en response.data');
       }
 
       if (groups && Array.isArray(groups)) {
-        console.log(`👥 ${groups.length} grupos encontrados para configuración`);
         this.populateGroupSelect(groups);
         this.renderGroupsList(groups);
       } else {
@@ -96,7 +81,6 @@ export class ConfigManager {
 
   // Poblar select de usuarios
   populateUserSelect(users) {
-    console.log('🔄 Poblando select de usuarios...');
     const userSelect = document.getElementById('user-select');
     if (!userSelect) {
       console.error('❌ No se encontró el elemento user-select');
@@ -112,12 +96,10 @@ export class ConfigManager {
       userSelect.appendChild(option);
     });
 
-    console.log(`✅ Select poblado con ${users.length} usuarios`);
   }
 
   // Poblar select de grupos
   populateGroupSelect(groups) {
-    console.log('🔄 Poblando select de grupos...');
     const groupSelect = document.getElementById('group-select');
     if (!groupSelect) {
       console.error('❌ No se encontró el elemento group-select');
@@ -133,12 +115,10 @@ export class ConfigManager {
       groupSelect.appendChild(option);
     });
 
-    console.log(`✅ Select poblado con ${groups.length} grupos`);
   }
 
   // Renderizar lista de usuarios con límites
   renderUsersList(users) {
-    console.log('🔄 Renderizando lista de usuarios...');
     const usersList = document.getElementById('users-list');
     if (!usersList) {
       console.error('❌ No se encontró el elemento users-list');
@@ -147,14 +127,12 @@ export class ConfigManager {
 
     if (!users || users.length === 0) {
       usersList.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No hay usuarios</div>';
-      console.log('⚠️ No hay usuarios para mostrar');
       return;
     }
 
     usersList.innerHTML = '';
 
     users.forEach(user => {
-      console.log('🔍 Procesando usuario:', { id: user.id, name: user.name, storage_limit: user.storage_limit });
       
       if (!user.id) {
         console.error('❌ Usuario sin ID:', user);
@@ -188,12 +166,10 @@ export class ConfigManager {
       usersList.appendChild(userItem);
     });
 
-    console.log(`✅ Lista renderizada con ${users.length} usuarios`);
   }
 
   // Renderizar lista de grupos con límites
   renderGroupsList(groups) {
-    console.log('🔄 Renderizando lista de grupos...');
     const groupsList = document.getElementById('groups-list');
     if (!groupsList) {
       console.error('❌ No se encontró el elemento groups-list');
@@ -202,14 +178,12 @@ export class ConfigManager {
 
     if (!groups || groups.length === 0) {
       groupsList.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No hay grupos</div>';
-      console.log('⚠️ No hay grupos para mostrar');
       return;
     }
 
     groupsList.innerHTML = '';
 
     groups.forEach(group => {
-      console.log('🔍 Procesando grupo:', { id: group.id, name: group.name, storage_limit: group.storage_limit });
       
       if (!group.id) {
         console.error('❌ Grupo sin ID:', group);
@@ -243,23 +217,14 @@ export class ConfigManager {
       groupsList.appendChild(groupItem);
     });
 
-    console.log(`✅ Lista renderizada con ${groups.length} grupos`);
   }
 
   // === LIMIT MANAGEMENT ===
 
   // Actualizar límite de usuario
   async updateUserLimit() {
-    console.log('🎯 updateUserLimit() llamada');
     const userSelect = document.getElementById('user-select');
     const userLimitInput = document.getElementById('user-limit');
-
-    console.log('📋 Elementos encontrados:', {
-      userSelect: !!userSelect,
-      userLimitInput: !!userLimitInput,
-      userSelectValue: userSelect?.value,
-      userLimitValue: userLimitInput?.value
-    });
 
     const userId = userSelect?.value;
     const limitMB = parseInt(userLimitInput?.value);
@@ -277,12 +242,10 @@ export class ConfigManager {
     }
 
     try {
-      console.log('🔄 Actualizando límite de usuario:', { userId, limitMB });
       const response = await window.Http.put(`/users/${userId}/storage-limit`, {
         storage_limit: limitMB * 1024 * 1024 // Convertir MB a bytes
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
         window.NotificationManager?.showSuccess('Límite de usuario actualizado exitosamente') || alert('Límite de usuario actualizado exitosamente');
@@ -304,16 +267,8 @@ export class ConfigManager {
 
   // Actualizar límite de grupo
   async updateGroupLimit() {
-    console.log('🎯 updateGroupLimit() llamada');
     const groupSelect = document.getElementById('group-select');
     const groupLimitInput = document.getElementById('group-limit');
-
-    console.log('📋 Elementos encontrados:', {
-      groupSelect: !!groupSelect,
-      groupLimitInput: !!groupLimitInput,
-      groupSelectValue: groupSelect?.value,
-      groupLimitValue: groupLimitInput?.value
-    });
 
     const groupId = groupSelect?.value;
     const limitMB = parseInt(groupLimitInput?.value);
@@ -331,12 +286,10 @@ export class ConfigManager {
     }
 
     try {
-      console.log('🔄 Actualizando límite de grupo:', { groupId, limitMB });
       const response = await window.Http.put(`/groups/${groupId}/storage-limit`, {
         storage_limit: limitMB * 1024 * 1024 // Convertir MB a bytes
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
         window.NotificationManager?.showSuccess('Límite de grupo actualizado exitosamente') || alert('Límite de grupo actualizado exitosamente');
@@ -358,13 +311,7 @@ export class ConfigManager {
 
   // Actualizar límite por defecto
   async updateDefaultLimit() {
-    console.log('🎯 updateDefaultLimit() llamada');
     const defaultLimitInput = document.getElementById('default-limit');
-
-    console.log('📋 Elementos encontrados:', {
-      defaultLimitInput: !!defaultLimitInput,
-      defaultLimitValue: defaultLimitInput?.value
-    });
 
     const limitMB = parseInt(defaultLimitInput?.value);
 
@@ -381,12 +328,10 @@ export class ConfigManager {
     }
 
     try {
-      console.log('🔄 Actualizando límite por defecto:', { limitMB });
       const response = await window.Http.put('/system-settings/default-storage-limit', {
-        storage_limit_mb: limitMB // Enviar en MB directamente, el backend hace la conversión a bytes
+        storage_limit_mb: limitMB 
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       if (response.success || response.message) {
         window.NotificationManager?.showSuccess(`Límite global por defecto actualizado a ${limitMB} MB`) || alert(`Límite global por defecto actualizado a ${limitMB} MB`);
@@ -407,10 +352,8 @@ export class ConfigManager {
 
   // Cargar límite por defecto actual
   async loadDefaultLimit() {
-    console.log('🔍 Cargando límite por defecto actual...');
     try {
       const response = await window.Http.get('/system-settings/default-storage-limit');
-      console.log('📦 Respuesta configuración del sistema:', response);
 
       let defaultLimitMB = null;
 
@@ -425,14 +368,12 @@ export class ConfigManager {
       }
 
       if (defaultLimitMB !== null && !isNaN(defaultLimitMB)) {
-        console.log(`✅ Límite por defecto encontrado: ${defaultLimitMB} MB`);
         
         const currentLimitSpan = document.getElementById('current-default-limit');
         if (currentLimitSpan) {
           currentLimitSpan.textContent = `${defaultLimitMB} MB`;
         }
       } else {
-        console.log('⚠️ No se encontró límite por defecto configurado');
         const currentLimitSpan = document.getElementById('current-default-limit');
         if (currentLimitSpan) {
           currentLimitSpan.textContent = 'No configurado';
@@ -465,13 +406,11 @@ export class ConfigManager {
       }
     }
     
-    console.log('🔍 Mostrando modal para quitar límite de usuario:', { userId, userName });
     this.showRemoveUserLimitModal(userId, userName);
   }
 
   // Función para quitar límite de usuario sin confirmación (para uso interno)
   async removeUserLimitWithoutConfirm(userId) {
-    console.log('🔍 Iniciando remoción de límite de usuario:', { userId, type: typeof userId });
     
     // Convertir userId a número si es string válido
     const parsedUserId = typeof userId === 'string' && !isNaN(userId) ? parseInt(userId) : userId;
@@ -484,12 +423,10 @@ export class ConfigManager {
     }
 
     try {
-      console.log('🔄 Removiendo límite de usuario:', parsedUserId);
       const response = await window.Http.put(`/users/${parsedUserId}/storage-limit`, {
         storage_limit: null
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       // Manejar diferentes estructuras de respuesta
       if (response.success || response.message || response.status === 'success') {
@@ -522,13 +459,11 @@ export class ConfigManager {
       }
     }
     
-    console.log('🔍 Mostrando modal para quitar límite de grupo:', { groupId, groupName });
     this.showRemoveGroupLimitModal(groupId, groupName);
   }
 
   // Función para quitar límite de grupo sin confirmación (para uso interno)
   async removeGroupLimitWithoutConfirm(groupId) {
-    console.log('🔍 Iniciando remoción de límite de grupo:', { groupId, type: typeof groupId });
     
     // Convertir groupId a número si es string válido
     const parsedGroupId = typeof groupId === 'string' && !isNaN(groupId) ? parseInt(groupId) : groupId;
@@ -541,12 +476,10 @@ export class ConfigManager {
     }
 
     try {
-      console.log('🔄 Removiendo límite de grupo:', parsedGroupId);
       const response = await window.Http.put(`/groups/${parsedGroupId}/storage-limit`, {
         storage_limit: null
       });
 
-      console.log('📡 Respuesta del servidor:', response);
 
       // Manejar diferentes estructuras de respuesta
       if (response.success || response.message || response.status === 'success') {
@@ -567,7 +500,6 @@ export class ConfigManager {
   
   // Mostrar modal de confirmación para quitar límite de usuario
   showRemoveUserLimitModal(userId, userName) {
-    console.log('🔍 Mostrando modal para quitar límite de usuario:', { userId, userName });
     
     this.pendingUserLimitRemoval = userId;
     
@@ -585,7 +517,6 @@ export class ConfigManager {
     
     userNameSpan.textContent = userName;
     modal.classList.remove('hidden');
-    console.log('✅ Modal de quitar límite de usuario mostrado');
   }
 
   // Ocultar modal de quitar límite de usuario
@@ -594,14 +525,12 @@ export class ConfigManager {
     if (modal) {
       modal.classList.add('hidden');
       this.pendingUserLimitRemoval = null; // Limpiar cuando se cancela o cierra
-      console.log('✅ Modal de quitar límite de usuario ocultado y pendiente limpiado');
     }
   }
 
   // Confirmar quitar límite de usuario
   async confirmRemoveUserLimit() {
     if (this.pendingUserLimitRemoval) {
-      console.log('✅ Confirmado quitar límite de usuario:', this.pendingUserLimitRemoval);
       const userId = this.pendingUserLimitRemoval; // Guardar el valor antes de ocultar el modal
       this.pendingUserLimitRemoval = null; // Limpiar inmediatamente
       this.hideRemoveUserLimitModal();
@@ -613,7 +542,6 @@ export class ConfigManager {
 
   // Mostrar modal de confirmación para quitar límite de grupo
   showRemoveGroupLimitModal(groupId, groupName) {
-    console.log('🔍 Mostrando modal para quitar límite de grupo:', { groupId, groupName });
     
     this.pendingGroupLimitRemoval = groupId;
     
@@ -631,7 +559,6 @@ export class ConfigManager {
     
     groupNameSpan.textContent = groupName;
     modal.classList.remove('hidden');
-    console.log('✅ Modal de quitar límite de grupo mostrado');
   }
 
   // Ocultar modal de quitar límite de grupo
@@ -640,14 +567,12 @@ export class ConfigManager {
     if (modal) {
       modal.classList.add('hidden');
       this.pendingGroupLimitRemoval = null; // Limpiar cuando se cancela o cierra
-      console.log('✅ Modal de quitar límite de grupo ocultado y pendiente limpiado');
     }
   }
 
   // Confirmar quitar límite de grupo
   async confirmRemoveGroupLimit() {
     if (this.pendingGroupLimitRemoval) {
-      console.log('✅ Confirmado quitar límite de grupo:', this.pendingGroupLimitRemoval);
       const groupId = this.pendingGroupLimitRemoval; // Guardar el valor antes de ocultar el modal
       this.pendingGroupLimitRemoval = null; // Limpiar inmediatamente
       this.hideRemoveGroupLimitModal();
