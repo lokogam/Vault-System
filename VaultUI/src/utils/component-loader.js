@@ -76,6 +76,7 @@ export const ComponentLoader = {
     const dashboardComponents = [
       { path: '/src/components/dashboard/navigation.html', targetId: 'dashboard-navigation' },
       { path: '/src/components/dashboard/files-view.html', targetId: 'dashboard-files-view' },
+      { path: '/src/components/dashboard/admin-files-view.html', targetId: 'dashboard-admin-files-view' },
       { path: '/src/components/dashboard/groups-view.html', targetId: 'dashboard-groups-view' },
       { path: '/src/components/dashboard/users-view.html', targetId: 'dashboard-users-view' },
       { path: '/src/components/dashboard/config-view.html', targetId: 'dashboard-config-view' },

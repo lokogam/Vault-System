@@ -332,6 +332,15 @@ export class DashboardManager {
         await this.fileManager.loadFiles();
         await this.loadStorageInfo();
         break;
+      case 'admin-files':
+        console.log('📂 Cargando gestión de archivos del sistema...');
+        if (this.isAdmin) {
+          console.log('✅ Usuario admin, cargando todos los archivos...');
+          await this.adminFileManager.loadAllFiles();
+        } else {
+          console.warn('Usuario no es admin, no puede ver archivos del sistema');
+        }
+        break;
       case 'groups':
         console.log('👥 Cargando grupos...');
         if (this.isAdmin && window.GroupManager) {
@@ -362,8 +371,7 @@ export class DashboardManager {
           console.log('📋 Iniciando carga de configuración completa...');
           console.log('🔍 Estado de managers:', {
             configManager: !!this.configManager,
-            restrictionsManager: !!this.restrictionsManager,
-            adminFileManager: !!this.adminFileManager
+            restrictionsManager: !!this.restrictionsManager
           });
           
           try {
@@ -378,9 +386,6 @@ export class DashboardManager {
             
             console.log('4️⃣ Cargando restricciones...');
             await this.restrictionsManager.loadRestrictions();
-            
-            console.log('5️⃣ Cargando todos los archivos...');
-            await this.adminFileManager.loadAllFiles();
             
             console.log('✅ Configuración cargada completamente');
           } catch (error) {

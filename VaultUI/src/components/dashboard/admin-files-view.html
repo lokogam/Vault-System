@@ -1,0 +1,117 @@
+<!-- Vista Gestión de Archivos del Sistema (Solo Admin) -->
+<div id="admin-files-content" class="dashboard-content hidden">
+  <div class="px-4 py-6 sm:px-0">
+    
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-900">
+          <i class="fas fa-files-o mr-2 text-purple-600"></i>Gestión de Archivos del Sistema
+        </h2>
+        <button id="refresh-all-files" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+          <i class="fas fa-sync mr-1"></i>Actualizar
+        </button>
+      </div>
+      <p class="mt-2 text-sm text-gray-600">Vista de todos los archivos subidos por usuarios del sistema</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div id="files-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+        <div class="flex items-center">
+          <i class="fas fa-file text-2xl text-blue-600 mr-3"></i>
+          <div>
+            <div class="text-2xl font-bold text-blue-700" id="total-files-count">0</div>
+            <div class="text-sm text-blue-600">Total de Archivos</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+        <div class="flex items-center">
+          <i class="fas fa-hdd text-2xl text-green-600 mr-3"></i>
+          <div>
+            <div class="text-2xl font-bold text-green-700" id="total-storage-used">0 MB</div>
+            <div class="text-sm text-green-600">Almacenamiento Usado</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+        <div class="flex items-center">
+          <i class="fas fa-users text-2xl text-yellow-600 mr-3"></i>
+          <div>
+            <div class="text-2xl font-bold text-yellow-700" id="total-users-with-files">0</div>
+            <div class="text-sm text-yellow-600">Usuarios Activos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Files Table Container -->
+    <div class="bg-white rounded-lg shadow-sm border">
+      <div class="p-6">
+        
+        <!-- Loading State -->
+        <div id="all-files-loading" class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <p class="mt-4 text-gray-600">Cargando archivos del sistema...</p>
+        </div>
+
+        <!-- Files Table -->
+        <div id="all-files-table" class="hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuario
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Archivo
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tipo
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tamaño
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="all-files-tbody" class="bg-white divide-y divide-gray-200">
+                <!-- Files will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div id="files-pagination" class="mt-6 flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Mostrando <span id="files-showing-start">0</span> a <span id="files-showing-end">0</span> de <span id="files-total">0</span> archivos
+            </div>
+            <div class="flex space-x-2">
+              <button id="files-prev-page" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                Anterior
+              </button>
+              <button id="files-next-page" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                Siguiente
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="all-files-empty" class="hidden text-center py-12">
+          <i class="fas fa-files-o text-6xl text-gray-400 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay archivos en el sistema</h3>
+          <p class="text-gray-500">Los archivos aparecerán aquí cuando los usuarios los suban</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
