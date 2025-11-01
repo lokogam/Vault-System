@@ -1,0 +1,18 @@
+<!-- Preloader Component -->
+<div id="preloader" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-8 max-w-sm mx-4 text-center shadow-xl">
+    <div class="flex justify-center mb-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+    <h3 id="preloader-title" class="text-lg font-medium text-gray-900 mb-2">Cargando...</h3>
+    <p id="preloader-message" class="text-sm text-gray-500">Por favor espera mientras procesamos tu solicitud</p>
+    
+    <!-- Barra de progreso opcional -->
+    <div id="preloader-progress" class="hidden mt-4">
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div id="preloader-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+      <p id="preloader-percentage" class="text-xs text-gray-500 mt-1">0%</p>
+    </div>
+  </div>
+</div>

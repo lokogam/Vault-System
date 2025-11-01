@@ -30,11 +30,14 @@ class AuthenticatedSessionController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Cargar roles del usuario
+        $user->load('roles');
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-            'token' => $token // Para compatibilidad con el frontend
+            'token' => $token 
         ]);
     }
 

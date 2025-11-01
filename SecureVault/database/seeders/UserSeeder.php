@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -16,18 +17,28 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::create([
-            'name' => 'Administrador',
-            'email' => 'admin@securevault.com',
-            'password' => Hash::make('password'),
-        ]);
+
+        // Crear usuario administrador
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@securevault.com'],
+            [
+                'name' => 'Administrador',
+                'password' => Hash::make('password'),
+            ]
+        );
+
         $admin->assignRole('Administrador');
 
-        $developer = User::create([
-            'name' => 'Usuario',
-            'email' => 'user@securevault.com',
-            'password' => Hash::make('password'),
-        ]);
-        $developer->assignRole('Usuario');
+        // Crear usuario normal
+        $user = User::updateOrCreate(
+            ['email' => 'user@securevault.com'],
+            [
+                'name' => 'Usuario Normal',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        // Limpiar roles existentes y asignar el rol de usuario
+        $user->assignRole('Usuario');
     }
 }

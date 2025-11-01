@@ -30,15 +30,21 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Asignar rol de Usuario por defecto
+        $user->assignRole('Usuario');
+
         event(new Registered($user));
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Cargar roles del usuario
+        $user->load('roles');
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-            'token' => $token // Para compatibilidad con el frontend
+            'token' => $token 
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupController extends Controller
 {
@@ -13,6 +14,11 @@ class GroupController extends Controller
      */
     public function index()
     {
+        // Verificar que el usuario sea administrador
+        if (!Auth::user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $groups = Group::with('users')->paginate();
         return response()->json($groups);
     }
@@ -22,6 +28,11 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+        // Verificar que el usuario sea administrador
+        if (!Auth::user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -35,6 +46,11 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
+        // Verificar que el usuario sea administrador
+        if (!Auth::user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         return response()->json($group->load('users'));
     }
 
@@ -43,6 +59,11 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
+        // Verificar que el usuario sea administrador
+        if (!Auth::user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -56,7 +77,12 @@ class GroupController extends Controller
      */
     public function destroy(Group $group)
     {
+        // Verificar que el usuario sea administrador
+        if (!Auth::user()->hasRole('Administrador')) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $group->delete();
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Grupo eliminado exitosamente'], 200);
     }
 }
