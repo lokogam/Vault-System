@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Refactorizado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen">
+        <!-- Login Container -->
+        <div id="login-container" class="hidden">
+            <h1>Login Page</h1>
+        </div>
+        
+        <!-- Register Container -->
+        <div id="register-container" class="hidden">
+            <h1>Register Page</h1>
+        </div>
+        
+        <!-- Dashboard Container -->
+        <div id="dashboard-container" class="hidden">
+            <!-- El dashboard refactorizado se cargará aquí -->
+        </div>
+    </div>
+    
+    <script>
+        // Simulación de datos para testing
+        window.AppState = {
+            user: {
+                id: 1,
+                name: "Usuario Test",
+                email: "test@test.com",
+                roles: [{name: "Administrador"}]
+            },
+            token: "test-token"
+        };
+        
+        // Mock de funciones necesarias
+        window.Auth = {
+            checkAuthStatus: () => {
+                console.log("✅ Auth.checkAuthStatus() ejecutado");
+                document.getElementById('dashboard-container').classList.remove('hidden');
+                document.getElementById('login-container').classList.add('hidden');
+                document.getElementById('register-container').classList.add('hidden');
+            }
+        };
+        
+        window.Http = {
+            get: async (url) => {
+                console.log(`📡 Mock GET request to: ${url}`);
+                if (url === '/files') {
+                    return {
+                        success: true,
+                        data: {
+                            files: []
+                        }
+                    };
+                }
+                return { success: true, data: {} };
+            }
+        };
+        
+        window.NotificationManager = {
+            showSuccess: (msg) => console.log("✅ Success:", msg),
+            showError: (msg) => console.log("❌ Error:", msg),
+            showWarning: (msg) => console.log("⚠️ Warning:", msg)
+        };
+        
+        // Cargar componentes
+        async function loadComponent(path, targetId) {
+            try {
+                const response = await fetch(path);
+                const html = await response.text();
+                document.getElementById(targetId).innerHTML = html;
+                console.log(`✅ Cargado: ${path} -> ${targetId}`);
+                return true;
+            } catch (error) {
+                console.error(`❌ Error cargando ${path}:`, error);
+                return false;
+            }
+        }
+        
+        async function initTest() {
+            console.log("🚀 Iniciando test del dashboard refactorizado...");
+            
+            // Cargar dashboard principal
+            await loadComponent('/src/pages/dashboard.html', 'dashboard-container');
+            
+            // Cargar componentes del dashboard
+            await loadComponent('/src/components/dashboard/navigation.html', 'dashboard-navigation');
+            await loadComponent('/src/components/dashboard/files-view.html', 'dashboard-files-view');
+            await loadComponent('/src/components/dashboard/groups-view.html', 'dashboard-groups-view');
+            await loadComponent('/src/components/dashboard/users-view.html', 'dashboard-users-view');
+            await loadComponent('/src/components/dashboard/config-view.html', 'dashboard-config-view');
+            await loadComponent('/src/components/dashboard/modals.html', 'dashboard-modals');
+            
+            // Mostrar dashboard
+            window.Auth.checkAuthStatus();
+            
+            console.log("✅ Test completado - verifica la consola y la página");
+        }
+        
+        // Iniciar test cuando la página esté lista
+        document.addEventListener('DOMContentLoaded', initTest);
+    </script>
+</body>
+</html>

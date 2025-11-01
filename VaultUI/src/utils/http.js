@@ -39,15 +39,26 @@ export const Http = {
       if (!response.ok) {
         // Si es error 401 (Unauthorized), limpiar sesión y redirigir a login
         if (response.status === 401) {
-          window.Storage.removeToken();
-          window.Storage.removeUser();
-          window.PageManager.goToLogin();
-          throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+          // Solo limpiar sesión y redirigir si no estamos en login
+          if (!window.location.pathname.includes('login') && !window.location.pathname.includes('index.html')) {
+            window.Storage.removeToken();
+            window.Storage.removeUser();
+            window.PageManager.goToLogin();
+          }
+          
+          throw new Error(data.message || 'Sesión expirada. Por favor, inicia sesión nuevamente.');
         }
         
         throw new Error(data.message || 'Error en la petición');
       }
       
+      // Si la respuesta ya tiene un success flag, devolverla tal como está
+      // para evitar anidación innecesaria
+      if (data && typeof data === 'object' && data.hasOwnProperty('success')) {
+        return data;
+      }
+      
+      // Para respuestas sin estructura estándar, envolver en success wrapper
       return { success: true, data };
     } catch (error) {
       logger.error('Error en petición HTTP:', error);

@@ -33,11 +33,14 @@ class AuthenticatedSessionController extends Controller
         // Cargar roles del usuario
         $user->load('roles');
 
+        // Agregar campo is_admin para el frontend
+        $user->is_admin = $user->hasRole('Administrador');
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-            'token' => $token 
+            'token' => $token
         ]);
     }
 

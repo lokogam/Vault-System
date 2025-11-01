@@ -302,3 +302,8 @@ export const NotificationManager = {
 
 // Hacer disponible globalmente
 window.NotificationManager = NotificationManager;
+
+// Exportar función directa para compatibilidad
+export const showNotification = (message, type = 'info', duration = 5000) => {
+  return NotificationManager.showNotification(message, type, duration);
+};

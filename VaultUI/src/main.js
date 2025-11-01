@@ -22,7 +22,8 @@ window.AppState = {
   user: null,
   token: null,
   currentPage: 'login',
-  currentTab: 'dashboard'
+  currentTab: 'dashboard',
+  initialized: false // Bandera para evitar múltiples inicializaciones
 };
 
 // Hacer disponibles los módulos globalmente
@@ -41,7 +42,15 @@ window.NotificationManager = NotificationManager;
 
 // Inicialización de la aplicación
 async function initializeApp() {
+  // Evitar múltiples inicializaciones
+  if (window.AppState.initialized) {
+    console.log('⚠️ Aplicación ya inicializada, saltando...');
+    return;
+  }
+  
   try {
+    console.log('🎬 INICIANDO APLICACIÓN...');
+    window.AppState.initialized = true;
     
     // 1. Cargar el preloader primero usando ComponentLoader
     await ComponentLoader.loadPreloader();
@@ -63,10 +72,30 @@ async function initializeApp() {
     GroupManager.setupEventListeners();
     UserManager.setupEventListeners();
     
+    // 6. Verificar autenticación y cargar dashboard si es necesario
+    console.log('🔍 Verificando estado de autenticación...');
+    console.log('📍 URL actual:', window.location.pathname);
+    console.log('🎯 Dashboard manager disponible:', !!window.dashboardManager);
+    
+    // Verificar si hay token y usuario
+    const token = Storage.getToken();
+    const user = Storage.getUser();
+    console.log('🔑 Token presente:', !!token);
+    console.log('👤 Usuario presente:', !!user);
+    
+    // 7. Verificar estado de autenticación y mostrar página correcta (SIN inicializar dashboard aquí)
+    console.log('🔄 Ejecutando checkAuthStatus...');
+    Auth.checkAuthStatus();
+    
+    console.log('✅ Aplicación inicializada completamente');
+    
     
     
   } catch (error) {
+    console.error('💥 ERROR CRÍTICO EN INICIALIZACIÓN:', error);
     logger.error('Error inicializando la aplicación:', error);
+    // Resetear bandera si hay error para permitir reintento
+    window.AppState.initialized = false;
   }
 }
 

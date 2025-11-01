@@ -1,0 +1,218 @@
+<!-- Modales del Dashboard -->
+
+<!-- Modal para asignar usuario a grupo -->
+<div id="assign-user-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <h3 class="text-lg font-medium text-gray-900" id="assign-modal-title">Asignar Usuario a Grupo</h3>
+      <form id="assign-user-form" class="mt-4">
+        <input type="hidden" id="assign-user-id" />
+        <div class="mb-4">
+          <label for="assign-group-select" class="block text-sm font-medium text-gray-700">Seleccionar Grupo</label>
+          <select id="assign-group-select" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">Seleccione un grupo...</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" id="cancel-assign-btn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            Asignar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para asignar rol -->
+<div id="assign-role-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <h3 class="text-lg font-medium text-gray-900">Asignar Rol</h3>
+      <form id="assign-role-form" class="mt-4">
+        <input type="hidden" id="assign-role-user-id" />
+        <div class="mb-4">
+          <label for="role-select" class="block text-sm font-medium text-gray-700">Seleccionar Rol</label>
+          <select id="role-select" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="Usuario">Usuario</option>
+            <option value="Administrador">Administrador</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" id="cancel-role-btn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            Asignar Rol
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para gestionar usuarios en grupos -->
+<div id="manage-group-users-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+  <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
+    <div class="mt-3 relative">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900" id="manage-users-title">Gestionar Usuarios del Grupo</h3>
+        <button id="close-manage-users-modal" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="manage-users-content">
+        <!-- Loading overlay -->
+        <div id="manage-users-loading" class="hidden absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-lg">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p class="mt-3 text-gray-600 font-medium">Cargando usuarios...</p>
+          </div>
+        </div>
+
+        <!-- Lista de usuarios disponibles -->
+        <div>
+          <h4 class="text-md font-medium text-gray-700 mb-3">Usuarios Disponibles</h4>
+          <div class="border rounded-lg p-4 max-h-80 overflow-y-auto relative">
+            <div id="available-users-loading" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <p class="mt-2 text-sm text-gray-600">Cargando...</p>
+              </div>
+            </div>
+            <div class="mb-3">
+              <input type="text" id="search-available-users" placeholder="Buscar usuarios..." 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+            </div>
+            <div id="available-users-list" class="space-y-2">
+              <!-- Lista de usuarios disponibles se cargará aquí -->
+            </div>
+          </div>
+          <button id="assign-selected-users" class="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm">
+            Asignar Seleccionados →
+          </button>
+        </div>
+
+        <!-- Lista de usuarios en el grupo -->
+        <div>
+          <h4 class="text-md font-medium text-gray-700 mb-3">Usuarios en el Grupo</h4>
+          <div class="border rounded-lg p-4 max-h-80 overflow-y-auto relative">
+            <div id="group-users-loading" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <p class="mt-2 text-sm text-gray-600">Cargando...</p>
+              </div>
+            </div>
+            <div class="mb-3">
+              <input type="text" id="search-group-users" placeholder="Buscar en grupo..." 
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+            </div>
+            <div id="group-users-list" class="space-y-2">
+              <!-- Lista de usuarios del grupo se cargará aquí -->
+            </div>
+          </div>
+          <button id="remove-selected-users" class="mt-3 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">
+            ← Remover Seleccionados
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-6">
+        <button type="button" id="cancel-manage-users" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar/Editar Restricción -->
+<div id="restriction-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="modal-title">Agregar Restricción</h3>
+      
+      <form id="restriction-form">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Extensión de archivo</label>
+            <input type="text" id="extension-input" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="ej: exe, bat, sh" required>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select id="status-select" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <option value="0">Permitido</option>
+              <option value="1">Prohibido</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+            <textarea id="description-input" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Descripción de la restricción"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3 mt-6">
+          <button type="button" id="cancel-restriction" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div id="delete-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <i class="fas fa-exclamation-triangle text-4xl text-red-600 mb-4"></i>
+      <h3 class="text-lg font-bold text-gray-900">Confirmar Eliminación</h3>
+      <p class="text-sm text-gray-500 mt-2">
+        ¿Estás seguro de que deseas eliminar el archivo "<span id="delete-filename"></span>"?
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="items-center px-4 py-3 mt-4">
+        <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-700 transition">
+          Eliminar
+        </button>
+        <button id="cancel-delete" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-24 hover:bg-gray-400 transition">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación de Restricción -->
+<div id="delete-restriction-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3 text-center">
+      <i class="fas fa-shield-alt text-4xl text-red-600 mb-4"></i>
+      <h3 class="text-lg font-bold text-gray-900">Eliminar Restricción</h3>
+      <p class="text-sm text-gray-500 mt-2">
+        ¿Estás seguro de que deseas eliminar la restricción para archivos "<span id="restriction-extension"></span>"?
+      </p>
+      <p class="text-xs text-gray-400 mt-1">
+        Los archivos con esta extensión volverán a estar permitidos.
+      </p>
+      <div class="items-center px-4 py-3 mt-4">
+        <button id="confirm-delete-restriction" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-700 transition">
+          Eliminar
+        </button>
+        <button id="cancel-delete-restriction" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-24 hover:bg-gray-400 transition">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

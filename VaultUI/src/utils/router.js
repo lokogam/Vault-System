@@ -31,12 +31,12 @@ export class Router {
     // Navegar sin agregar al historial (ya estamos en esta URL)
     this.navigateToPath(currentPath, false);
     
-    // Verificar estado de autenticación después de cargar la ruta
-    setTimeout(() => {
-      if (window.Auth) {
-        window.Auth.checkAuthStatus();
-      }
-    }, 100);
+    // COMENTADO: evitar bucle con checkAuthStatus en main.js
+    // setTimeout(() => {
+    //   if (window.Auth) {
+    //     window.Auth.checkAuthStatus();
+    //   }
+    // }, 100);
   }
 
   // Navegar a una ruta específica

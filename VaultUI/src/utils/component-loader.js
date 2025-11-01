@@ -57,6 +57,9 @@ export const ComponentLoader = {
 
     const results = await this.loadMultipleComponents(pages);
     
+    // Cargar componentes del dashboard después de cargar la página principal
+    await this.loadDashboardComponents();
+    
     // Ocultar spinner de carga una vez que las páginas estén cargadas
     const spinner = document.getElementById('loading-spinner');
     if (spinner) {
@@ -64,6 +67,29 @@ export const ComponentLoader = {
     }
 
     return results;
+  },
+
+  /**
+   * Carga los componentes específicos del dashboard
+   */
+  async loadDashboardComponents() {
+    const dashboardComponents = [
+      { path: '/src/components/dashboard/navigation.html', targetId: 'dashboard-navigation' },
+      { path: '/src/components/dashboard/files-view.html', targetId: 'dashboard-files-view' },
+      { path: '/src/components/dashboard/groups-view.html', targetId: 'dashboard-groups-view' },
+      { path: '/src/components/dashboard/users-view.html', targetId: 'dashboard-users-view' },
+      { path: '/src/components/dashboard/config-view.html', targetId: 'dashboard-config-view' },
+      { path: '/src/components/dashboard/modals.html', targetId: 'dashboard-modals' }
+    ];
+
+    try {
+      const results = await this.loadMultipleComponents(dashboardComponents);
+      logger.info('Componentes del dashboard cargados correctamente');
+      return results;
+    } catch (error) {
+      logger.error('Error cargando componentes del dashboard:', error);
+      return false;
+    }
   },
 
   /**

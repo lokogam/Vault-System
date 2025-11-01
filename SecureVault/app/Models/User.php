@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'storage_limit',
+        'storage_used',
     ];
 
     /**
@@ -60,7 +62,7 @@ class User extends Authenticatable
 
     public function getEffectiveStorageLimit()
     {
-        // 1. Límite específico del usuario 
+        // 1. Límite específico del usuario
         if ($this->storage_limit !== null) {
             return $this->storage_limit;
         }
@@ -71,11 +73,9 @@ class User extends Authenticatable
             return $group->storage_limit;
         }
 
-        // 3. Límite global por defecto (10MB)
-        return 10 * 1024 * 1024; // 10MB en bytes
-    }
-
-    public function canUploadFile($fileSize)
+        // 3. Límite global por defecto
+        return SystemSetting::getDefaultStorageLimit();
+    }    public function canUploadFile($fileSize)
     {
         $currentUsage = $this->storage_used;
         $limit = $this->getEffectiveStorageLimit();

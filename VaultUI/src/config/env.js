@@ -36,6 +36,12 @@ export const logger = {
     }
   },
   
+  info: (...args) => {
+    if (config.dev.enableLogs) {
+      console.info('[SecureVault Info]', ...args);
+    }
+  },
+  
   error: (...args) => {
     if (config.dev.enableLogs) {
       console.error('[SecureVault Error]', ...args);

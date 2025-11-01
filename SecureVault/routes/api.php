@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FileRestrictionController;
+use App\Http\Controllers\Api\SystemSettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('groups', GroupController::class);
     Route::post('groups/{group}/assign-users', [GroupController::class, 'assignUsers']);
     Route::post('groups/{group}/remove-users', [GroupController::class, 'removeUsers']);
+    Route::put('groups/{group}/storage-limit', [GroupController::class, 'updateStorageLimit']);
 
     // Rutas de archivos
     Route::group(['prefix' => 'files'], function () {
@@ -52,5 +54,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [FileRestrictionController::class, 'store']);
         Route::put('/{restriction}', [FileRestrictionController::class, 'update']);
         Route::delete('/{restriction}', [FileRestrictionController::class, 'destroy']);
+    });
+
+    // Rutas de configuraciones del sistema (solo administradores)
+    Route::group(['prefix' => 'system-settings', 'middleware' => 'role:Administrador'], function () {
+        Route::get('/', [SystemSettingsController::class, 'index']);
+        Route::get('/default-storage-limit', [SystemSettingsController::class, 'getDefaultStorageLimit']);
+        Route::put('/default-storage-limit', [SystemSettingsController::class, 'updateDefaultStorageLimit']);
     });
 });

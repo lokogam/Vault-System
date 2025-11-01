@@ -22,6 +22,7 @@ class GroupController extends Controller
         $groups = Group::with('users')->get();
 
         return response()->json([
+            'success' => true,
             'data' => $groups,
             'groups' => $groups // Para compatibilidad con diferentes partes del frontend
         ]);
@@ -117,6 +118,39 @@ class GroupController extends Controller
         return response()->json([
             'message' => 'Usuarios removidos del grupo exitosamente',
             'group' => $group->load('users')
+        ]);
+    }
+
+    /**
+     * Actualizar límite de almacenamiento de un grupo
+     */
+    public function updateStorageLimit(Request $request, Group $group)
+    {
+        $this->authorize('update', $group);
+
+        // Validación más flexible - permitir cualquier valor o null
+        $validated = $request->validate([
+            'storage_limit' => 'nullable|integer|min:0' // Permitir 0 o mayor
+        ]);
+
+        // Si el valor es 0, convertir a null (sin límite)
+        $storageLimit = $validated['storage_limit'] === 0 ? null : $validated['storage_limit'];
+
+        $group->update([
+            'storage_limit' => $storageLimit
+        ]);
+
+        $limitDisplay = $storageLimit
+            ? (number_format($storageLimit / (1024 * 1024), 2) . ' MB')
+            : 'Sin límite específico';
+
+        return response()->json([
+            'success' => true,
+            'message' => "Límite de almacenamiento del grupo actualizado exitosamente a: {$limitDisplay}",
+            'data' => [
+                'group' => $group->fresh(),
+                'storage_limit_display' => $limitDisplay
+            ]
         ]);
     }
 }

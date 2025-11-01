@@ -35,10 +35,23 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Usuario Normal',
                 'password' => Hash::make('password'),
+                'storage_limit' => 20 * 1024 * 1024 // 20MB límite específico
             ]
         );
 
         // Limpiar roles existentes y asignar el rol de usuario
         $user->assignRole('Usuario');
+
+        // Crear usuario adicional sin límite específico
+        $user2 = User::updateOrCreate(
+            ['email' => 'usuario2@securevault.com'],
+            [
+                'name' => 'María González',
+                'password' => Hash::make('password'),
+                'storage_limit' => null // Sin límite específico
+            ]
+        );
+
+        $user2->assignRole('Usuario');
     }
 }

@@ -33,23 +33,29 @@ class UserController extends Controller
 
         $users = User::with(['roles', 'groups'])->get();
 
+        $transformedUsers = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'storage_limit' => $user->storage_limit,
+                'roles' => $user->roles->pluck('name'),
+                'groups' => $user->groups->map(function ($group) {
+                    return [
+                        'id' => $group->id,
+                        'name' => $group->name
+                    ];
+                }),
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at
+            ];
+        });
+
         return response()->json([
-            'users' => $users->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'roles' => $user->roles->pluck('name'),
-                    'groups' => $user->groups->map(function ($group) {
-                        return [
-                            'id' => $group->id,
-                            'name' => $group->name
-                        ];
-                    }),
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at
-                ];
-            })
+            'success' => true,
+            'data' => [
+                'users' => $transformedUsers
+            ]
         ]);
     }
 
@@ -152,22 +158,37 @@ class UserController extends Controller
     {
         // Solo administradores pueden actualizar límites
         if (!$request->user()->hasRole('Administrador')) {
-            return response()->json(['message' => 'No autorizado'], 403);
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado'
+            ], 403);
         }
 
         $user = User::findOrFail($userId);
 
-        $request->validate([
-            'storage_limit' => 'nullable|integer|min:1048576' // Mínimo 1MB
+        // Validación más flexible - permitir cualquier valor o null
+        $validated = $request->validate([
+            'storage_limit' => 'nullable|integer|min:0' // Permitir 0 o mayor
         ]);
+
+        // Si el valor es 0, convertir a null (sin límite)
+        $storageLimit = $validated['storage_limit'] === 0 ? null : $validated['storage_limit'];
 
         $user->update([
-            'storage_limit' => $request->storage_limit
+            'storage_limit' => $storageLimit
         ]);
 
+        $limitDisplay = $storageLimit
+            ? (number_format($storageLimit / (1024 * 1024), 2) . ' MB')
+            : 'Sin límite específico';
+
         return response()->json([
-            'message' => 'Límite de almacenamiento actualizado exitosamente',
-            'user' => $user
+            'success' => true,
+            'message' => "Límite de almacenamiento actualizado exitosamente a: {$limitDisplay}",
+            'data' => [
+                'user' => $user->fresh(),
+                'storage_limit_display' => $limitDisplay
+            ]
         ]);
     }
 

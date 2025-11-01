@@ -17,21 +17,53 @@ export const UserManager = {
     if (noUsersElement) noUsersElement.classList.add('hidden');
 
     try {
-      const response = await window.Http.get('/users', { 
-        title: 'Cargando Usuarios', 
-        message: 'Obteniendo lista de usuarios...' 
+      const response = await window.Http.get('/users', {
+        title: 'Cargando Usuarios',
+        message: 'Obteniendo lista de usuarios...'
       });
 
+      console.log('📦 Respuesta completa de usuarios:', response);
+
       if (response.success) {
-        this.users = response.data.users;
-        this.renderUsersTable();
+        // Manejar diferentes estructuras de respuesta de manera robusta
+        let users = null;
+
+        if (response.data && response.data.data) {
+          // Estructura paginada de Laravel: response.data.data
+          users = response.data.data;
+          console.log('✅ Usuarios encontrados en response.data.data');
+        } else if (response.data && response.data.users) {
+          // Estructura con key 'users': response.data.users
+          users = response.data.users;
+          console.log('✅ Usuarios encontrados en response.data.users');
+        } else if (response.data && Array.isArray(response.data)) {
+          // Array directo: response.data
+          users = response.data;
+          console.log('✅ Usuarios encontrados en response.data (array directo)');
+        } else if (response.users && Array.isArray(response.users)) {
+          // Fallback: response.users
+          users = response.users;
+          console.log('✅ Usuarios encontrados en response.users');
+        }
+
+        if (users && Array.isArray(users)) {
+          this.users = users;
+          console.log(`📊 ${users.length} usuarios cargados exitosamente`);
+          this.renderUsersTable();
+        } else {
+          console.error('❌ No se encontraron usuarios válidos en la respuesta:', response);
+          this.users = [];
+          this.renderUsersTable();
+          window.NotificationManager.showWarning('No se encontraron usuarios en la respuesta del servidor');
+        }
       } else {
-        window.NotificationManager.showError('Error al cargar usuarios: ' + response.error);
+        console.error('❌ Respuesta sin éxito:', response);
+        window.NotificationManager.showError('Error al cargar usuarios: ' + (response.error || response.message || 'Error desconocido'));
         if (noUsersElement) noUsersElement.classList.remove('hidden');
       }
     } catch (error) {
-      console.error('Error loading users:', error);
-      window.NotificationManager.showError('Error al cargar usuarios');
+      console.error('💥 Error loading users:', error);
+      window.NotificationManager.showError('Error al cargar usuarios: ' + error.message);
       if (noUsersElement) noUsersElement.classList.remove('hidden');
     } finally {
       if (loadingElement) loadingElement.classList.add('hidden');
@@ -43,13 +75,33 @@ export const UserManager = {
     const tbody = document.getElementById('users-tbody');
     const noUsersElement = document.getElementById('no-users');
 
-    if (!tbody) return;
+    if (!tbody) {
+      console.error('❌ No se encontró el elemento users-tbody');
+      return;
+    }
+
+    // Validar que this.users sea un array válido
+    if (!this.users || !Array.isArray(this.users)) {
+      console.warn('⚠️ this.users no es un array válido:', this.users);
+      this.users = []; // Inicializar como array vacío
+    }
 
     tbody.innerHTML = '';
 
+    console.log(`📊 Renderizando tabla con ${this.users.length} usuarios`);
+
     if (this.users.length === 0) {
       if (tableContainer) tableContainer.classList.add('hidden');
-      if (noUsersElement) noUsersElement.classList.remove('hidden');
+      if (noUsersElement) {
+        noUsersElement.classList.remove('hidden');
+        noUsersElement.innerHTML = `
+          <div class="text-center py-8">
+            <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">No hay usuarios disponibles</p>
+            <p class="text-sm text-gray-400 mt-2">Verifica los permisos de administrador</p>
+          </div>
+        `;
+      }
       return;
     }
 
@@ -58,10 +110,10 @@ export const UserManager = {
 
     this.users.forEach(user => {
       const row = document.createElement('tr');
-      
+
       const rolesText = user.roles ? user.roles.join(', ') : 'Sin rol';
-      const groupsText = user.groups && user.groups.length > 0 
-        ? user.groups.map(g => g.name).join(', ') 
+      const groupsText = user.groups && user.groups.length > 0
+        ? user.groups.map(g => g.name).join(', ')
         : 'Sin grupos';
 
       row.innerHTML = `
@@ -70,8 +122,8 @@ export const UserManager = {
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.email}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            user.roles && user.roles.includes('Administrador') 
-              ? 'bg-purple-100 text-purple-800' 
+            user.roles && user.roles.includes('Administrador')
+              ? 'bg-purple-100 text-purple-800'
               : 'bg-blue-100 text-blue-800'
           }">
             ${rolesText}
@@ -79,7 +131,7 @@ export const UserManager = {
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           <div class="flex flex-wrap gap-1">
-            ${user.groups && user.groups.length > 0 
+            ${user.groups && user.groups.length > 0
               ? user.groups.map(group => `
                   <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
                     ${group.name}
@@ -101,7 +153,7 @@ export const UserManager = {
           </button>
         </td>
       `;
-      
+
       tbody.appendChild(row);
     });
   },
@@ -122,7 +174,7 @@ export const UserManager = {
       const response = await window.Http.get('/groups');
       if (response.success) {
         groupSelect.innerHTML = '<option value="">Seleccione un grupo...</option>';
-        
+
         // Verificar si response.data tiene la estructura de paginación o es un array directo
         let groups = [];
         if (response.data.data) {
@@ -135,7 +187,7 @@ export const UserManager = {
           // Array directo
           groups = response.data;
         }
-        
+
         groups.forEach(group => {
           groupSelect.innerHTML += `<option value="${group.id}">${group.name}</option>`;
         });
@@ -156,7 +208,7 @@ export const UserManager = {
     if (!modal || !userIdInput || !roleSelect) return;
 
     userIdInput.value = userId;
-    
+
     // Seleccionar el rol actual
     if (currentRole.includes('Administrador')) {
       roleSelect.value = 'Administrador';
@@ -246,6 +298,74 @@ export const UserManager = {
     }
   },
 
+  // Función de debugging para verificar el estado de los usuarios
+  debugUsersState() {
+    console.log('🔍 DEBUG: Estado actual del UserManager');
+    console.log('- this.users:', this.users);
+    console.log('- this.users type:', typeof this.users);
+    console.log('- this.users.length:', this.users?.length);
+    console.log('- Array.isArray(this.users):', Array.isArray(this.users));
+
+    // Verificar elementos DOM
+    console.log('🔍 DEBUG: Elementos DOM');
+    console.log('- users-tbody:', !!document.getElementById('users-tbody'));
+    console.log('- users-table-container:', !!document.getElementById('users-table-container'));
+    console.log('- no-users:', !!document.getElementById('no-users'));
+    console.log('- users-loading:', !!document.getElementById('users-loading'));
+
+    // Verificar permisos
+    console.log('🔍 DEBUG: Permisos');
+    console.log('- window.Auth:', !!window.Auth);
+    console.log('- window.Auth.isAdmin():', window.Auth?.isAdmin());
+    console.log('- window.Http:', !!window.Http);
+
+    if (window.NotificationManager) {
+      window.NotificationManager.showInfo('Estado de usuarios verificado. Revisa la consola para detalles.');
+    }
+  },
+
+  // Función para probar la carga de usuarios
+  async testLoadUsers() {
+    console.log('🧪 Probando carga de usuarios...');
+
+    if (!window.Auth?.isAdmin()) {
+      console.log('❌ Usuario no es admin, no puede cargar usuarios');
+      window.NotificationManager?.showWarning('Solo los administradores pueden gestionar usuarios');
+      return;
+    }
+
+    try {
+      console.log('📡 Haciendo petición de prueba a /users...');
+      const response = await window.Http.get('/users');
+      console.log('📦 Respuesta de prueba:', response);
+
+      // Analizar la estructura de respuesta
+      console.log('🔍 Analizando estructura:');
+      console.log('- response.success:', response.success);
+      console.log('- response.data:', response.data);
+      console.log('- typeof response.data:', typeof response.data);
+
+      if (response.data) {
+        console.log('- response.data.data:', response.data.data);
+        console.log('- response.data.users:', response.data.users);
+        console.log('- Array.isArray(response.data):', Array.isArray(response.data));
+
+        if (response.data.data) {
+          console.log('- response.data.data.length:', response.data.data.length);
+        }
+        if (response.data.users) {
+          console.log('- response.data.users.length:', response.data.users.length);
+        }
+      }
+
+      window.NotificationManager?.showSuccess('Prueba de carga completada. Revisa la consola.');
+
+    } catch (error) {
+      console.error('❌ Error en prueba de usuarios:', error);
+      window.NotificationManager?.showError('Error en prueba: ' + error.message);
+    }
+  },
+
   setupEventListeners() {
     // Botón de actualizar
     const refreshBtn = document.getElementById('refresh-users-btn');
@@ -262,12 +382,12 @@ export const UserManager = {
         e.preventDefault();
         const userId = document.getElementById('assign-user-id').value;
         const groupId = document.getElementById('assign-group-select').value;
-        
+
         if (!groupId) {
           window.NotificationManager.showError('Debe seleccionar un grupo');
           return;
         }
-        
+
         this.assignUserToGroup(userId, groupId);
       });
     }
@@ -286,7 +406,7 @@ export const UserManager = {
         e.preventDefault();
         const userId = document.getElementById('assign-role-user-id').value;
         const role = document.getElementById('role-select').value;
-        
+
         this.assignRole(userId, role);
       });
     }

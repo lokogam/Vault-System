@@ -1,0 +1,40 @@
+<!-- Navegación del Dashboard -->
+
+<!-- Navegación principal -->
+<nav class="bg-indigo-600 shadow">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 justify-between">
+      <div class="flex items-center">
+        <h1 class="text-xl font-semibold text-white">SecureVault</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="user-name" class="text-white text-sm"></span>
+        <button id="logout-btn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-md text-sm font-medium">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Navegación secundaria (Pestañas) -->
+<div class="bg-white shadow">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <button id="tab-files" class="dashboard-tab border-indigo-500 text-indigo-600 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+          <i class="fas fa-file mr-2"></i>Mis Archivos
+        </button>
+        <button id="tab-groups" class="dashboard-tab admin-only border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+          <i class="fas fa-users mr-2"></i>Gestión de Grupos
+        </button>
+        <button id="tab-users" class="dashboard-tab admin-only border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+          <i class="fas fa-user-cog mr-2"></i>Gestión de Usuarios
+        </button>
+        <button id="tab-config" class="dashboard-tab admin-only border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+          <i class="fas fa-cog mr-2"></i>Configuración
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
