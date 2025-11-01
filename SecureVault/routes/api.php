@@ -24,4 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rutas de grupos (la verificación de roles se hace en el controlador)
     Route::apiResource('groups', GroupController::class);
+    Route::post('groups/{group}/assign-users', [GroupController::class, 'assignUsers']);
+    Route::post('groups/{group}/remove-users', [GroupController::class, 'removeUsers']);
 });

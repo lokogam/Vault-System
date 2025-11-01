@@ -135,7 +135,7 @@ export const PageManager = {
 
     // Cargar datos específicos según la pestaña
     if (tabName === 'groups') {
-      window.GroupManager.loadGroups();
+      window.GroupManager.init();
     } else if (tabName === 'users') {
       window.UserManager.loadUsers();
     }

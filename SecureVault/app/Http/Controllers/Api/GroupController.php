@@ -77,4 +77,46 @@ class GroupController extends Controller
         $group->delete();
         return response()->json(['message' => 'Grupo eliminado exitosamente'], 200);
     }
+
+    /**
+     * Asignar usuarios a un grupo
+     */
+    public function assignUsers(Request $request, Group $group)
+    {
+        $this->authorize('update', $group);
+
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        // Asignar usuarios al grupo
+        $group->users()->attach($request->user_ids);
+
+        return response()->json([
+            'message' => 'Usuarios asignados al grupo exitosamente',
+            'group' => $group->load('users')
+        ]);
+    }
+
+    /**
+     * Remover usuarios de un grupo
+     */
+    public function removeUsers(Request $request, Group $group)
+    {
+        $this->authorize('update', $group);
+
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        // Remover usuarios del grupo
+        $group->users()->detach($request->user_ids);
+
+        return response()->json([
+            'message' => 'Usuarios removidos del grupo exitosamente',
+            'group' => $group->load('users')
+        ]);
+    }
 }
