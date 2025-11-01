@@ -76,19 +76,26 @@ export const PageManager = {
 
   setupRoleBasedUI() {
     const groupsTab = document.getElementById('tab-groups');
+    const usersTab = document.getElementById('tab-users');
     
     if (window.Auth.isAdmin()) {
       // Mostrar pestañas de administrador
       if (groupsTab) {
         groupsTab.classList.remove('hidden');
       }
+      if (usersTab) {
+        usersTab.classList.remove('hidden');
+      }
     } else {
       // Ocultar pestañas de administrador
       if (groupsTab) {
         groupsTab.classList.add('hidden');
       }
+      if (usersTab) {
+        usersTab.classList.add('hidden');
+      }
       // Si está en una pestaña de admin, redirigir al dashboard principal
-      if (window.AppState.currentTab === 'groups') {
+      if (window.AppState.currentTab === 'groups' || window.AppState.currentTab === 'users') {
         this.showDashboardTab('dashboard');
       }
     }
@@ -96,7 +103,7 @@ export const PageManager = {
 
   showDashboardTab(tabName) {
     // Verificar permisos para pestañas de administrador
-    if (tabName === 'groups' && !window.Auth.isAdmin()) {
+    if ((tabName === 'groups' || tabName === 'users') && !window.Auth.isAdmin()) {
       return;
     }
 
@@ -129,6 +136,8 @@ export const PageManager = {
     // Cargar datos específicos según la pestaña
     if (tabName === 'groups') {
       window.GroupManager.loadGroups();
+    } else if (tabName === 'users') {
+      window.UserManager.loadUsers();
     }
   },
 
@@ -146,6 +155,15 @@ export const PageManager = {
       groupsTab.addEventListener('click', () => {
         if (window.Auth.isAdmin()) {
           this.showDashboardTab('groups');
+        }
+      });
+    }
+
+    const usersTab = document.getElementById('tab-users');
+    if (usersTab) {
+      usersTab.addEventListener('click', () => {
+        if (window.Auth.isAdmin()) {
+          this.showDashboardTab('users');
         }
       });
     }

@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Importar estilos personalizados para notificaciones */
+@import "./styles/notifications.css";

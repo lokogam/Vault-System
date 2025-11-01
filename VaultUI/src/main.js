@@ -6,6 +6,7 @@ import { config, logger } from './config/env.js'
 import { Auth, Storage } from './modules/auth.js'
 import { PageManager } from './modules/dashboard.js'
 import { GroupManager } from './modules/groups.js'
+import { UserManager } from './modules/users.js'
 import { FormHandlers } from './modules/forms.js'
 
 // Importar utilidades
@@ -14,6 +15,7 @@ import { Http } from './utils/http.js'
 import { ComponentLoader } from './utils/component-loader.js'
 import { Preloader, PreloaderMessages } from './utils/preloader.js'
 import { AppRouter } from './utils/router.js'
+import { NotificationManager } from './utils/notifications.js'
 
 // Estado global de la aplicación
 window.AppState = {
@@ -27,6 +29,7 @@ window.AppState = {
 window.Auth = Auth;
 window.PageManager = PageManager;
 window.GroupManager = GroupManager;
+window.UserManager = UserManager;
 window.Storage = Storage;
 window.ModalManager = ModalManager;
 window.Http = Http;
@@ -34,6 +37,7 @@ window.ComponentLoader = ComponentLoader;
 window.Preloader = Preloader;
 window.PreloaderMessages = PreloaderMessages;
 window.AppRouter = AppRouter;
+window.NotificationManager = NotificationManager;
 
 // Inicialización de la aplicación
 async function initializeApp() {
@@ -57,6 +61,7 @@ async function initializeApp() {
     FormHandlers.setupAllForms();
     PageManager.setupNavigationEventListeners();
     GroupManager.setupEventListeners();
+    UserManager.setupEventListeners();
     
     
     
@@ -76,6 +81,8 @@ window.SecureVault = {
   Http,
   Storage,
   GroupManager,
+  UserManager,
   ModalManager,
-  ComponentLoader
+  ComponentLoader,
+  NotificationManager
 };

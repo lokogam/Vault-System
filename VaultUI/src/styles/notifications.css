@@ -1,0 +1,104 @@
+/* Estilos adicionales para notificaciones */
+
+/* Mejoras para el sistema de notificaciones */
+#notification-container {
+  pointer-events: none;
+}
+
+#notification-container > * {
+  pointer-events: auto;
+}
+
+/* Animaciones más suaves para las notificaciones */
+.notification-enter {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.notification-exit {
+  animation: slideOutRight 0.4s ease-in;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Efecto de hover mejorado */
+.notification-hover:hover {
+  transform: translateX(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Barra de progreso con gradiente */
+.notification-progress {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(255, 255, 255, 0.6) 50%, 
+    rgba(255, 255, 255, 0.4) 100%
+  );
+}
+
+/* Efectos adicionales para diferentes tipos */
+.notification-success {
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.2);
+}
+
+.notification-error {
+  box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.2);
+}
+
+.notification-warning {
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.2);
+}
+
+.notification-info {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsividad para móviles */
+@media (max-width: 640px) {
+  #notification-container {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+  
+  .notification-mobile {
+    margin: 0;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Efectos de focus para accesibilidad */
+.notification-close-btn:focus {
+  outline: 2px solid #4F46E5;
+  outline-offset: 2px;
+}
+
+/* Spinner personalizado para notificaciones de carga */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -16,7 +16,8 @@ export const GroupManager = {
     const response = await window.Http.get('/groups', window.PreloaderMessages.LOADING_GROUPS);
     
     if (response.success) {
-      const groups = response.data.data; // Laravel pagination data
+      // Usar la estructura mejorada o fallback a la original
+      const groups = response.data.groups || response.data.data || response.data;
       this.renderGroupsTable(groups);
       
       if (groups.length === 0) {

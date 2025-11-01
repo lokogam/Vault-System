@@ -15,6 +15,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Endpoint para debug - verificar usuario y roles
     Route::get('/user/me', [UserController::class, 'me']);
 
+    // Gestión de usuarios (solo para administradores)
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::post('/users/{id}/assign-group', [UserController::class, 'assignToGroup']);
+    Route::post('/users/{id}/remove-group', [UserController::class, 'removeFromGroup']);
+    Route::post('/users/{id}/assign-role', [UserController::class, 'assignRole']);
+
     // Rutas de grupos (la verificación de roles se hace en el controlador)
     Route::apiResource('groups', GroupController::class);
 });

@@ -19,8 +19,12 @@ class GroupController extends Controller
     {
         $this->authorize('viewAny', Group::class);
 
-        $groups = Group::with('users')->paginate();
-        return response()->json($groups);
+        $groups = Group::with('users')->get();
+
+        return response()->json([
+            'data' => $groups,
+            'groups' => $groups // Para compatibilidad con diferentes partes del frontend
+        ]);
     }
 
     /**
