@@ -1,0 +1,659 @@
+// config-manager.js - Gestión de configuraciones del administrador
+
+export class ConfigManager {
+  constructor() {
+    this.pendingUserLimitRemoval = null;
+    this.pendingGroupLimitRemoval = null;
+  }
+
+  // === CONFIGURATION MANAGEMENT ===
+
+  // Cargar usuarios para configuración
+  async loadUsersForConfig() {
+    console.log('🔍 Cargando usuarios para configuración...');
+    try {
+      const response = await window.Http.get('/users');
+      console.log('📦 Respuesta de usuarios:', response);
+
+      let users = null;
+
+      if (response.success && response.data && response.data.users) {
+        // Nueva estructura: response.data.users
+        users = response.data.users;
+        console.log('✅ Usuarios encontrados en response.data.users');
+      } else if (response.success && response.data && response.data.data) {
+        // Estructura: response.data.data
+        users = response.data.data;
+        console.log('✅ Usuarios encontrados en response.data.data');
+      } else if (response.success && Array.isArray(response.data)) {
+        // Estructura: response.data (array directo)
+        users = response.data;
+        console.log('✅ Usuarios encontrados en response.data (array)');
+      } else if (Array.isArray(response)) {
+        // Respuesta directa como array
+        users = response;
+        console.log('✅ Usuarios encontrados en respuesta directa (array)');
+      } else if (response.users) {
+        // Estructura: response.users
+        users = response.users;
+        console.log('✅ Usuarios encontrados en response.users');
+      }
+
+      if (users && Array.isArray(users)) {
+        console.log(`👥 ${users.length} usuarios encontrados para configuración`);
+        this.populateUserSelect(users);
+        this.renderUsersList(users);
+      } else {
+        console.error('❌ No se pudieron obtener usuarios válidos:', response);
+        this.renderUsersList([]);
+      }
+    } catch (error) {
+      console.error('💥 Error loading users for config:', error);
+      this.renderUsersList([]);
+    }
+  }
+
+  // Cargar grupos para configuración
+  async loadGroupsForConfig() {
+    console.log('🔍 Cargando grupos para configuración...');
+    try {
+      const response = await window.Http.get('/groups');
+      console.log('📦 Respuesta de grupos:', response);
+
+      let groups = null;
+
+      if (response.success && response.data && response.data.data) {
+        // Datos en response.data.data
+        groups = response.data.data;
+        console.log('✅ Grupos encontrados en response.data.data');
+      } else if (response.success && response.data && Array.isArray(response.data)) {
+        // Datos en response.data (array directo)
+        groups = response.data;
+        console.log('✅ Grupos encontrados en response.data (array)');
+      } else if (Array.isArray(response)) {
+        // Respuesta directa como array
+        groups = response;
+        console.log('✅ Grupos encontrados en respuesta directa (array)');
+      } else if (response.data && Array.isArray(response.data)) {
+        // Grupos en response.data
+        groups = response.data;
+        console.log('✅ Grupos encontrados en response.data');
+      }
+
+      if (groups && Array.isArray(groups)) {
+        console.log(`👥 ${groups.length} grupos encontrados para configuración`);
+        this.populateGroupSelect(groups);
+        this.renderGroupsList(groups);
+      } else {
+        console.error('❌ Respuesta inválida de grupos:', response);
+        this.renderGroupsList([]);
+      }
+    } catch (error) {
+      console.error('❌ Error loading groups for config:', error);
+      this.renderGroupsList([]);
+    }
+  }
+
+  // Poblar select de usuarios
+  populateUserSelect(users) {
+    console.log('🔄 Poblando select de usuarios...');
+    const userSelect = document.getElementById('user-select');
+    if (!userSelect) {
+      console.error('❌ No se encontró el elemento user-select');
+      return;
+    }
+
+    userSelect.innerHTML = '<option value="">Seleccionar usuario...</option>';
+
+    users.forEach(user => {
+      const option = document.createElement('option');
+      option.value = user.id;
+      option.textContent = `${user.name} (${user.email})`;
+      userSelect.appendChild(option);
+    });
+
+    console.log(`✅ Select poblado con ${users.length} usuarios`);
+  }
+
+  // Poblar select de grupos
+  populateGroupSelect(groups) {
+    console.log('🔄 Poblando select de grupos...');
+    const groupSelect = document.getElementById('group-select');
+    if (!groupSelect) {
+      console.error('❌ No se encontró el elemento group-select');
+      return;
+    }
+
+    groupSelect.innerHTML = '<option value="">Seleccionar grupo...</option>';
+
+    groups.forEach(group => {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      groupSelect.appendChild(option);
+    });
+
+    console.log(`✅ Select poblado con ${groups.length} grupos`);
+  }
+
+  // Renderizar lista de usuarios con límites
+  renderUsersList(users) {
+    console.log('🔄 Renderizando lista de usuarios...');
+    const usersList = document.getElementById('users-list');
+    if (!usersList) {
+      console.error('❌ No se encontró el elemento users-list');
+      return;
+    }
+
+    if (!users || users.length === 0) {
+      usersList.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No hay usuarios</div>';
+      console.log('⚠️ No hay usuarios para mostrar');
+      return;
+    }
+
+    usersList.innerHTML = '';
+
+    users.forEach(user => {
+      console.log('🔍 Procesando usuario:', { id: user.id, name: user.name, storage_limit: user.storage_limit });
+      
+      if (!user.id) {
+        console.error('❌ Usuario sin ID:', user);
+        return;
+      }
+      
+      const limitDisplay = user.storage_limit
+        ? `${(user.storage_limit / (1024 * 1024)).toFixed(0)} MB`
+        : 'Sin límite específico';
+
+      const limitClass = user.storage_limit ? 'text-purple-700' : 'text-gray-500';
+
+      const userItem = document.createElement('div');
+      userItem.className = 'flex justify-between items-center p-2 bg-gray-50 rounded border';
+      userItem.setAttribute('data-user-id', user.id);
+      userItem.innerHTML = `
+        <div>
+          <div class="font-medium text-sm">${user.name}</div>
+          <div class="text-xs text-gray-600">${user.email}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm font-medium ${limitClass}">${limitDisplay}</div>
+          ${user.storage_limit ? `
+            <button onclick="window.configManager.removeUserLimit(${user.id})"
+                    class="text-xs text-red-600 hover:text-red-800">
+              Quitar límite
+            </button>
+          ` : ''}
+        </div>
+      `;
+      usersList.appendChild(userItem);
+    });
+
+    console.log(`✅ Lista renderizada con ${users.length} usuarios`);
+  }
+
+  // Renderizar lista de grupos con límites
+  renderGroupsList(groups) {
+    console.log('🔄 Renderizando lista de grupos...');
+    const groupsList = document.getElementById('groups-list');
+    if (!groupsList) {
+      console.error('❌ No se encontró el elemento groups-list');
+      return;
+    }
+
+    if (!groups || groups.length === 0) {
+      groupsList.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No hay grupos</div>';
+      console.log('⚠️ No hay grupos para mostrar');
+      return;
+    }
+
+    groupsList.innerHTML = '';
+
+    groups.forEach(group => {
+      console.log('🔍 Procesando grupo:', { id: group.id, name: group.name, storage_limit: group.storage_limit });
+      
+      if (!group.id) {
+        console.error('❌ Grupo sin ID:', group);
+        return;
+      }
+      
+      const limitDisplay = group.storage_limit
+        ? `${(group.storage_limit / (1024 * 1024)).toFixed(0)} MB`
+        : 'Sin límite específico';
+
+      const limitClass = group.storage_limit ? 'text-green-700' : 'text-gray-500';
+
+      const groupItem = document.createElement('div');
+      groupItem.className = 'flex justify-between items-center p-2 bg-gray-50 rounded border';
+      groupItem.setAttribute('data-group-id', group.id);
+      groupItem.innerHTML = `
+        <div>
+          <div class="font-medium text-sm">${group.name}</div>
+          <div class="text-xs text-gray-600">${group.description || 'Sin descripción'}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm font-medium ${limitClass}">${limitDisplay}</div>
+          ${group.storage_limit ? `
+            <button onclick="window.configManager.removeGroupLimit(${group.id})"
+                    class="text-xs text-red-600 hover:text-red-800">
+              Quitar límite
+            </button>
+          ` : ''}
+        </div>
+      `;
+      groupsList.appendChild(groupItem);
+    });
+
+    console.log(`✅ Lista renderizada con ${groups.length} grupos`);
+  }
+
+  // === LIMIT MANAGEMENT ===
+
+  // Actualizar límite de usuario
+  async updateUserLimit() {
+    console.log('🎯 updateUserLimit() llamada');
+    const userSelect = document.getElementById('user-select');
+    const userLimitInput = document.getElementById('user-limit');
+
+    console.log('📋 Elementos encontrados:', {
+      userSelect: !!userSelect,
+      userLimitInput: !!userLimitInput,
+      userSelectValue: userSelect?.value,
+      userLimitValue: userLimitInput?.value
+    });
+
+    const userId = userSelect?.value;
+    const limitMB = parseInt(userLimitInput?.value);
+
+    if (!userId) {
+      const msg = 'Por favor selecciona un usuario';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    if (!limitMB || limitMB <= 0) {
+      const msg = 'Por favor ingresa un límite válido (mayor a 0 MB)';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    try {
+      console.log('🔄 Actualizando límite de usuario:', { userId, limitMB });
+      const response = await window.Http.put(`/users/${userId}/storage-limit`, {
+        storage_limit: limitMB * 1024 * 1024 // Convertir MB a bytes
+      });
+
+      console.log('📡 Respuesta del servidor:', response);
+
+      if (response.success || response.message) {
+        window.NotificationManager?.showSuccess('Límite de usuario actualizado exitosamente') || alert('Límite de usuario actualizado exitosamente');
+        await this.loadUsersForConfig();
+        
+        // Limpiar formulario
+        userSelect.value = '';
+        userLimitInput.value = '';
+      } else {
+        const errorMsg = 'Error al actualizar límite: ' + (response.error || response.message || 'Error desconocido');
+        window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error updating user limit:', error);
+      const errorMsg = 'Error al actualizar límite de usuario: ' + (error.message || 'Error de conexión');
+      window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+    }
+  }
+
+  // Actualizar límite de grupo
+  async updateGroupLimit() {
+    console.log('🎯 updateGroupLimit() llamada');
+    const groupSelect = document.getElementById('group-select');
+    const groupLimitInput = document.getElementById('group-limit');
+
+    console.log('📋 Elementos encontrados:', {
+      groupSelect: !!groupSelect,
+      groupLimitInput: !!groupLimitInput,
+      groupSelectValue: groupSelect?.value,
+      groupLimitValue: groupLimitInput?.value
+    });
+
+    const groupId = groupSelect?.value;
+    const limitMB = parseInt(groupLimitInput?.value);
+
+    if (!groupId) {
+      const msg = 'Por favor selecciona un grupo';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    if (!limitMB || limitMB <= 0) {
+      const msg = 'Por favor ingresa un límite válido (mayor a 0 MB)';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    try {
+      console.log('🔄 Actualizando límite de grupo:', { groupId, limitMB });
+      const response = await window.Http.put(`/groups/${groupId}/storage-limit`, {
+        storage_limit: limitMB * 1024 * 1024 // Convertir MB a bytes
+      });
+
+      console.log('📡 Respuesta del servidor:', response);
+
+      if (response.success || response.message) {
+        window.NotificationManager?.showSuccess('Límite de grupo actualizado exitosamente') || alert('Límite de grupo actualizado exitosamente');
+        await this.loadGroupsForConfig();
+        
+        // Limpiar formulario
+        groupSelect.value = '';
+        groupLimitInput.value = '';
+      } else {
+        const errorMsg = 'Error al actualizar límite: ' + (response.error || response.message || 'Error desconocido');
+        window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error updating group limit:', error);
+      const errorMsg = 'Error al actualizar límite de grupo: ' + (error.message || 'Error de conexión');
+      window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+    }
+  }
+
+  // Actualizar límite por defecto
+  async updateDefaultLimit() {
+    console.log('🎯 updateDefaultLimit() llamada');
+    const defaultLimitInput = document.getElementById('default-limit');
+
+    console.log('📋 Elementos encontrados:', {
+      defaultLimitInput: !!defaultLimitInput,
+      defaultLimitValue: defaultLimitInput?.value
+    });
+
+    const limitMB = parseInt(defaultLimitInput?.value);
+
+    if (!limitMB || limitMB <= 0) {
+      const msg = 'Por favor ingresa un límite válido (mayor a 0 MB)';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    if (limitMB > 10000) {
+      const msg = 'El límite no puede ser mayor a 10GB (10000 MB)';
+      window.NotificationManager?.showError(msg) || alert(msg);
+      return;
+    }
+
+    try {
+      console.log('🔄 Actualizando límite por defecto:', { limitMB });
+      const response = await window.Http.put('/system-settings/default-storage-limit', {
+        storage_limit_mb: limitMB // Enviar en MB directamente, el backend hace la conversión a bytes
+      });
+
+      console.log('📡 Respuesta del servidor:', response);
+
+      if (response.success || response.message) {
+        window.NotificationManager?.showSuccess(`Límite global por defecto actualizado a ${limitMB} MB`) || alert(`Límite global por defecto actualizado a ${limitMB} MB`);
+        await this.loadDefaultLimit();
+        
+        // Limpiar input
+        defaultLimitInput.value = '';
+      } else {
+        const errorMsg = 'Error al actualizar límite por defecto: ' + (response.error || response.message || 'Error desconocido');
+        window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error updating default limit:', error);
+      const errorMsg = 'Error al actualizar límite por defecto: ' + (error.message || 'Error de conexión');
+      window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+    }
+  }
+
+  // Cargar límite por defecto actual
+  async loadDefaultLimit() {
+    console.log('🔍 Cargando límite por defecto actual...');
+    try {
+      const response = await window.Http.get('/system-settings/default-storage-limit');
+      console.log('📦 Respuesta configuración del sistema:', response);
+
+      let defaultLimitMB = null;
+
+      if (response.success && response.data) {
+        // El backend devuelve default_storage_limit_mb que ya está en MB
+        if (response.data.default_storage_limit_mb !== undefined) {
+          defaultLimitMB = parseInt(response.data.default_storage_limit_mb);
+        } else if (response.data.default_storage_limit !== undefined) {
+          // Si viene en bytes, convertir a MB
+          defaultLimitMB = Math.round(parseInt(response.data.default_storage_limit) / (1024 * 1024));
+        }
+      }
+
+      if (defaultLimitMB !== null && !isNaN(defaultLimitMB)) {
+        console.log(`✅ Límite por defecto encontrado: ${defaultLimitMB} MB`);
+        
+        const currentLimitSpan = document.getElementById('current-default-limit');
+        if (currentLimitSpan) {
+          currentLimitSpan.textContent = `${defaultLimitMB} MB`;
+        }
+      } else {
+        console.log('⚠️ No se encontró límite por defecto configurado');
+        const currentLimitSpan = document.getElementById('current-default-limit');
+        if (currentLimitSpan) {
+          currentLimitSpan.textContent = 'No configurado';
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error loading default limit:', error);
+      const currentLimitSpan = document.getElementById('current-default-limit');
+      if (currentLimitSpan) {
+        currentLimitSpan.textContent = 'Error al cargar';
+      }
+    }
+  }
+
+  // === REMOVE LIMITS ===
+
+  // Quitar límite específico de usuario
+  async removeUserLimit(userId) {
+    // Buscar el nombre del usuario para el modal
+    const usersListElement = document.getElementById('users-list');
+    let userName = 'Usuario';
+    
+    if (usersListElement) {
+      const userCard = usersListElement.querySelector(`[data-user-id="${userId}"]`);
+      if (userCard) {
+        const nameElement = userCard.querySelector('.font-medium');
+        if (nameElement) {
+          userName = nameElement.textContent;
+        }
+      }
+    }
+    
+    console.log('🔍 Mostrando modal para quitar límite de usuario:', { userId, userName });
+    this.showRemoveUserLimitModal(userId, userName);
+  }
+
+  // Función para quitar límite de usuario sin confirmación (para uso interno)
+  async removeUserLimitWithoutConfirm(userId) {
+    console.log('🔍 Iniciando remoción de límite de usuario:', { userId, type: typeof userId });
+    
+    // Convertir userId a número si es string válido
+    const parsedUserId = typeof userId === 'string' && !isNaN(userId) ? parseInt(userId) : userId;
+    
+    // Validar que userId sea válido
+    if (!parsedUserId || parsedUserId === 'undefined' || parsedUserId === 'null' || isNaN(parsedUserId)) {
+      console.error('❌ ID de usuario inválido:', userId);
+      window.NotificationManager?.showError('ID de usuario inválido') || alert('ID de usuario inválido');
+      return;
+    }
+
+    try {
+      console.log('🔄 Removiendo límite de usuario:', parsedUserId);
+      const response = await window.Http.put(`/users/${parsedUserId}/storage-limit`, {
+        storage_limit: null
+      });
+
+      console.log('📡 Respuesta del servidor:', response);
+
+      // Manejar diferentes estructuras de respuesta
+      if (response.success || response.message || response.status === 'success') {
+        window.NotificationManager?.showSuccess('Límite específico removido. El usuario usará el límite por defecto.') || alert('Límite específico removido. El usuario usará el límite por defecto.');
+        await this.loadUsersForConfig(); // Recargar lista
+      } else {
+        const errorMsg = 'Error al remover límite: ' + (response.error || response.message || 'Error desconocido');
+        window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error removing user limit:', error);
+      const errorMsg = 'Error al remover límite de usuario: ' + (error.message || 'Error de conexión');
+      window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+    }
+  }
+
+  // Quitar límite específico de grupo
+  async removeGroupLimit(groupId) {
+    // Buscar el nombre del grupo para el modal
+    const groupsListElement = document.getElementById('groups-list');
+    let groupName = 'Grupo';
+    
+    if (groupsListElement) {
+      const groupCard = groupsListElement.querySelector(`[data-group-id="${groupId}"]`);
+      if (groupCard) {
+        const nameElement = groupCard.querySelector('.font-medium');
+        if (nameElement) {
+          groupName = nameElement.textContent;
+        }
+      }
+    }
+    
+    console.log('🔍 Mostrando modal para quitar límite de grupo:', { groupId, groupName });
+    this.showRemoveGroupLimitModal(groupId, groupName);
+  }
+
+  // Función para quitar límite de grupo sin confirmación (para uso interno)
+  async removeGroupLimitWithoutConfirm(groupId) {
+    console.log('🔍 Iniciando remoción de límite de grupo:', { groupId, type: typeof groupId });
+    
+    // Convertir groupId a número si es string válido
+    const parsedGroupId = typeof groupId === 'string' && !isNaN(groupId) ? parseInt(groupId) : groupId;
+    
+    // Validar que groupId sea válido
+    if (!parsedGroupId || parsedGroupId === 'undefined' || parsedGroupId === 'null' || isNaN(parsedGroupId)) {
+      console.error('❌ ID de grupo inválido:', groupId);
+      window.NotificationManager?.showError('ID de grupo inválido') || alert('ID de grupo inválido');
+      return;
+    }
+
+    try {
+      console.log('🔄 Removiendo límite de grupo:', parsedGroupId);
+      const response = await window.Http.put(`/groups/${parsedGroupId}/storage-limit`, {
+        storage_limit: null
+      });
+
+      console.log('📡 Respuesta del servidor:', response);
+
+      // Manejar diferentes estructuras de respuesta
+      if (response.success || response.message || response.status === 'success') {
+        window.NotificationManager?.showSuccess('Límite específico removido. El grupo usará el límite por defecto.') || alert('Límite específico removido. El grupo usará el límite por defecto.');
+        await this.loadGroupsForConfig(); // Recargar lista
+      } else {
+        const errorMsg = 'Error al remover límite: ' + (response.error || response.message || 'Error desconocido');
+        window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('❌ Error removing group limit:', error);
+      const errorMsg = 'Error al remover límite de grupo: ' + (error.message || 'Error de conexión');
+      window.NotificationManager?.showError(errorMsg) || alert(errorMsg);
+    }
+  }
+
+  // === MODAL FUNCTIONS FOR REMOVING LIMITS ===
+  
+  // Mostrar modal de confirmación para quitar límite de usuario
+  showRemoveUserLimitModal(userId, userName) {
+    console.log('🔍 Mostrando modal para quitar límite de usuario:', { userId, userName });
+    
+    this.pendingUserLimitRemoval = userId;
+    
+    const modal = document.getElementById('remove-user-limit-modal');
+    const userNameSpan = document.getElementById('user-limit-name');
+    
+    if (!modal || !userNameSpan) {
+      console.error('❌ No se encontraron elementos del modal de quitar límite de usuario');
+      // Fallback al confirm() tradicional
+      if (confirm(`¿Estás seguro de que quieres quitar el límite específico para ${userName}?\n\nEl usuario usará el límite por defecto.`)) {
+        this.removeUserLimitWithoutConfirm(userId);
+      }
+      return;
+    }
+    
+    userNameSpan.textContent = userName;
+    modal.classList.remove('hidden');
+    console.log('✅ Modal de quitar límite de usuario mostrado');
+  }
+
+  // Ocultar modal de quitar límite de usuario
+  hideRemoveUserLimitModal() {
+    const modal = document.getElementById('remove-user-limit-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      this.pendingUserLimitRemoval = null; // Limpiar cuando se cancela o cierra
+      console.log('✅ Modal de quitar límite de usuario ocultado y pendiente limpiado');
+    }
+  }
+
+  // Confirmar quitar límite de usuario
+  async confirmRemoveUserLimit() {
+    if (this.pendingUserLimitRemoval) {
+      console.log('✅ Confirmado quitar límite de usuario:', this.pendingUserLimitRemoval);
+      const userId = this.pendingUserLimitRemoval; // Guardar el valor antes de ocultar el modal
+      this.pendingUserLimitRemoval = null; // Limpiar inmediatamente
+      this.hideRemoveUserLimitModal();
+      await this.removeUserLimitWithoutConfirm(userId);
+    } else {
+      console.error('❌ No hay userId pendiente para remover');
+    }
+  }
+
+  // Mostrar modal de confirmación para quitar límite de grupo
+  showRemoveGroupLimitModal(groupId, groupName) {
+    console.log('🔍 Mostrando modal para quitar límite de grupo:', { groupId, groupName });
+    
+    this.pendingGroupLimitRemoval = groupId;
+    
+    const modal = document.getElementById('remove-group-limit-modal');
+    const groupNameSpan = document.getElementById('group-limit-name');
+    
+    if (!modal || !groupNameSpan) {
+      console.error('❌ No se encontraron elementos del modal de quitar límite de grupo');
+      // Fallback al confirm() tradicional
+      if (confirm(`¿Estás seguro de que quieres quitar el límite específico para el grupo ${groupName}?\n\nEl grupo usará el límite por defecto.`)) {
+        this.removeGroupLimitWithoutConfirm(groupId);
+      }
+      return;
+    }
+    
+    groupNameSpan.textContent = groupName;
+    modal.classList.remove('hidden');
+    console.log('✅ Modal de quitar límite de grupo mostrado');
+  }
+
+  // Ocultar modal de quitar límite de grupo
+  hideRemoveGroupLimitModal() {
+    const modal = document.getElementById('remove-group-limit-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      this.pendingGroupLimitRemoval = null; // Limpiar cuando se cancela o cierra
+      console.log('✅ Modal de quitar límite de grupo ocultado y pendiente limpiado');
+    }
+  }
+
+  // Confirmar quitar límite de grupo
+  async confirmRemoveGroupLimit() {
+    if (this.pendingGroupLimitRemoval) {
+      console.log('✅ Confirmado quitar límite de grupo:', this.pendingGroupLimitRemoval);
+      const groupId = this.pendingGroupLimitRemoval; // Guardar el valor antes de ocultar el modal
+      this.pendingGroupLimitRemoval = null; // Limpiar inmediatamente
+      this.hideRemoveGroupLimitModal();
+      await this.removeGroupLimitWithoutConfirm(groupId);
+    } else {
+      console.error('❌ No hay groupId pendiente para remover');
+    }
+  }
+}

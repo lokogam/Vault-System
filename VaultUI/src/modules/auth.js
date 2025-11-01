@@ -100,8 +100,9 @@ export const Auth = {
     console.log('  - AppRouter available:', !!window.AppRouter);
     console.log('  - Dashboard initialized:', window.dashboardManager?.initialized);
     
+    // Verificar que AMBOS token y usuario estén presentes
     if (token && user) {
-      console.log('✅ Usuario autenticado');
+      console.log('✅ Usuario autenticado correctamente (token + user)');
       // Usuario autenticado
       if (currentPage === 'login' || currentPage === 'register') {
         console.log('🔄 Redirigiendo a dashboard desde', currentPage);
@@ -122,7 +123,17 @@ export const Auth = {
         }
       }
     } else {
-      console.log('❌ Usuario NO autenticado');
+      // Si falta token o usuario, limpiar todo y redirigir a login
+      if (!token && user) {
+        console.log('⚠️ Usuario sin token - limpiando datos y redirigiendo');
+        Storage.clearAll();
+      } else if (token && !user) {
+        console.log('⚠️ Token sin usuario - limpiando datos y redirigiendo');
+        Storage.clearAll();
+      } else {
+        console.log('❌ Usuario NO autenticado');
+      }
+      
       // Usuario no autenticado
       if (currentPage === 'dashboard') {
         console.log('🔄 Redirigiendo a login desde dashboard');

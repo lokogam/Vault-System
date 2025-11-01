@@ -75,7 +75,9 @@ class User extends Authenticatable
 
         // 3. Límite global por defecto
         return SystemSetting::getDefaultStorageLimit();
-    }    public function canUploadFile($fileSize)
+    }
+
+    public function canUploadFile($fileSize)
     {
         $currentUsage = $this->storage_used;
         $limit = $this->getEffectiveStorageLimit();

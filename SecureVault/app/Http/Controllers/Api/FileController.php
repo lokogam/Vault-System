@@ -22,10 +22,13 @@ class FileController extends Controller
             'success' => true,
             'files' => $files,
             'storage_info' => [
-                'used' => $user->storage_used,
+                'used' => $user->storage_used ?? 0,
                 'limit' => $user->getEffectiveStorageLimit(),
-                'formatted_used' => $this->formatBytes($user->storage_used),
-                'formatted_limit' => $this->formatBytes($user->getEffectiveStorageLimit())
+                'formatted_used' => $this->formatBytes($user->storage_used ?? 0),
+                'formatted_limit' => $this->formatBytes($user->getEffectiveStorageLimit()),
+                'percentage' => $user->getEffectiveStorageLimit() > 0
+                    ? round((($user->storage_used ?? 0) / $user->getEffectiveStorageLimit()) * 100, 2)
+                    : 0
             ]
         ]);
     }

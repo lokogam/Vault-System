@@ -154,7 +154,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateStorageLimit(Request $request, $userId)
+    public function updateStorageLimit(Request $request, User $user)
     {
         // Solo administradores pueden actualizar límites
         if (!$request->user()->hasRole('Administrador')) {
@@ -163,8 +163,6 @@ class UserController extends Controller
                 'message' => 'No autorizado'
             ], 403);
         }
-
-        $user = User::findOrFail($userId);
 
         // Validación más flexible - permitir cualquier valor o null
         $validated = $request->validate([

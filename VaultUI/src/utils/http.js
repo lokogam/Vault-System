@@ -9,16 +9,21 @@ export const Http = {
   async request(url, options = {}, preloaderConfig = null) {
     const config = {
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...options.headers
       },
       ...options
     };
 
+    // Solo agregar Content-Type si no es FormData
+    if (!(options.body instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+
     // Agregar token si existe
-    if (window.AppState.token) {
-      config.headers['Authorization'] = `Bearer ${window.AppState.token}`;
+    const token = window.AppState?.token || localStorage.getItem('auth_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
@@ -75,6 +80,14 @@ export const Http = {
     return this.request(url, {
       method: 'POST',
       body: JSON.stringify(body)
+    }, preloaderConfig);
+  },
+
+  async postFormData(url, formData, preloaderConfig = null) {
+    // Para FormData no enviar Content-Type (el navegador lo establecerá automáticamente con boundary)
+    return this.request(url, {
+      method: 'POST',
+      body: formData
     }, preloaderConfig);
   },
 

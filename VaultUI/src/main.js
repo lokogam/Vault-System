@@ -4,7 +4,7 @@ import { config, logger } from './config/env.js'
 
 // Importar módulos principales
 import { Auth, Storage } from './modules/auth.js'
-import { PageManager } from './modules/dashboard.js'
+import { PageManager, DashboardManager } from './modules/dashboard/dashboard-main.js'
 import { GroupManager } from './modules/groups.js'
 import { UserManager } from './modules/users.js'
 import { FormHandlers } from './modules/forms.js'
