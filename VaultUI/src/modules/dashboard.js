@@ -16,15 +16,27 @@ export const PageManager = {
   },
 
   goToLogin() {
-    this.showPage('login');
+    if (window.AppRouter) {
+      window.AppRouter.navigateTo('login');
+    } else {
+      this.showPage('login');
+    }
   },
 
   goToRegister() {
-    this.showPage('register');
+    if (window.AppRouter) {
+      window.AppRouter.navigateTo('register');
+    } else {
+      this.showPage('register');
+    }
   },
 
   goToDashboard() {
-    this.showPage('dashboard');
+    if (window.AppRouter) {
+      window.AppRouter.navigateTo('dashboard');
+    } else {
+      this.showPage('dashboard');
+    }
     this.updateDashboard();
     this.debugUserRoles();
     this.setupRoleBasedUI();

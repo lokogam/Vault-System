@@ -91,11 +91,29 @@ export const Auth = {
   checkAuthStatus() {
     const token = Storage.getToken();
     const user = Storage.getUser();
+    const currentPage = window.AppRouter ? window.AppRouter.getCurrentPage() : 'login';
     
     if (token && user) {
-      window.PageManager.goToDashboard();
+      // Usuario autenticado
+      if (currentPage === 'login' || currentPage === 'register') {
+        // Si está en login/register, redirigir a dashboard
+        window.PageManager.goToDashboard();
+      } else {
+        // Si está en dashboard, mantener la página actual
+        window.PageManager.showPage('dashboard');
+        window.PageManager.updateDashboard();
+        window.PageManager.debugUserRoles();
+        window.PageManager.setupRoleBasedUI();
+      }
     } else {
-      window.PageManager.goToLogin();
+      // Usuario no autenticado
+      if (currentPage === 'dashboard') {
+        // Si está en dashboard sin auth, redirigir a login
+        window.PageManager.goToLogin();
+      } else {
+        // Si está en login/register, mantener la página actual
+        window.PageManager.showPage(currentPage);
+      }
     }
   },
 

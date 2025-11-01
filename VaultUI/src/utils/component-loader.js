@@ -1,5 +1,7 @@
 // component-loader.js - Sistema para cargar componentes HTML dinámicamente
 
+import { logger } from '../config/env.js';
+
 export const ComponentLoader = {
   
   /**
@@ -25,7 +27,7 @@ export const ComponentLoader = {
       targetElement.innerHTML = html;
       return true;
     } catch (error) {
-      console.error('ComponentLoader error:', error);
+      logger.error('ComponentLoader error:', error);
       return false;
     }
   },
@@ -89,10 +91,9 @@ export const ComponentLoader = {
       const html = await response.text();
       document.body.insertAdjacentHTML('beforeend', html);
       
-      console.log('Preloader cargado exitosamente');
       return true;
     } catch (error) {
-      console.error('Error cargando preloader:', error);
+      logger.error('Error cargando preloader:', error);
       return false;
     }
   }

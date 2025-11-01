@@ -1,7 +1,9 @@
 // http.js - Utilidades para peticiones HTTP con preloader integrado
 
-// Configuración de la API
-const API_BASE_URL = 'http://localhost:8000/api';
+import { config, logger } from '../config/env.js';
+
+// Configuración de la API desde variables de entorno
+const API_BASE_URL = config.api.baseUrl;
 
 export const Http = {
   async request(url, options = {}, preloaderConfig = null) {
@@ -48,7 +50,7 @@ export const Http = {
       
       return { success: true, data };
     } catch (error) {
-      console.error('Error en petición HTTP:', error);
+      logger.error('Error en petición HTTP:', error);
       return { success: false, error: error.message };
     } finally {
       // Ocultar preloader si estaba configurado

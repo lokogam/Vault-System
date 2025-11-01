@@ -1,5 +1,6 @@
 // main.js - Punto de entrada principal de la aplicación
 import './style.css'
+import { config, logger } from './config/env.js'
 
 // Importar módulos principales
 import { Auth, Storage } from './modules/auth.js'
@@ -12,6 +13,7 @@ import { ModalManager } from './utils/modal.js'
 import { Http } from './utils/http.js'
 import { ComponentLoader } from './utils/component-loader.js'
 import { Preloader, PreloaderMessages } from './utils/preloader.js'
+import { AppRouter } from './utils/router.js'
 
 // Estado global de la aplicación
 window.AppState = {
@@ -31,10 +33,12 @@ window.Http = Http;
 window.ComponentLoader = ComponentLoader;
 window.Preloader = Preloader;
 window.PreloaderMessages = PreloaderMessages;
+window.AppRouter = AppRouter;
 
 // Inicialización de la aplicación
 async function initializeApp() {
   try {
+    
     // 1. Cargar el preloader primero usando ComponentLoader
     await ComponentLoader.loadPreloader();
     
@@ -54,11 +58,10 @@ async function initializeApp() {
     PageManager.setupNavigationEventListeners();
     GroupManager.setupEventListeners();
     
-    // 6. Verificar estado de autenticación
-    Auth.checkAuthStatus();
+    
     
   } catch (error) {
-    console.error('Error inicializando la aplicación:', error);
+    logger.error('Error inicializando la aplicación:', error);
   }
 }
 

@@ -5,4 +5,14 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
+  server: {
+    historyApiFallback: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
 })

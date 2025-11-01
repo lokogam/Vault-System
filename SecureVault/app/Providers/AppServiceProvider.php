@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Group;
+use App\Policies\GroupPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
             return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
+
+        // Registrar policies
+        Gate::policy(Group::class, GroupPolicy::class);
     }
 }
