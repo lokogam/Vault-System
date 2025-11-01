@@ -101,9 +101,12 @@ export const Auth = {
       } else {
         // Si está en dashboard, mantener la página actual
         window.PageManager.showPage('dashboard');
-        window.PageManager.updateDashboard();
-        window.PageManager.debugUserRoles();
-        window.PageManager.setupRoleBasedUI();
+        // Usar setTimeout para asegurar que el DOM está listo
+        setTimeout(() => {
+          window.PageManager.updateDashboard();
+          window.PageManager.debugUserRoles();
+          window.PageManager.setupRoleBasedUI();
+        }, 0);
       }
     } else {
       // Usuario no autenticado

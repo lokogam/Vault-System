@@ -37,9 +37,12 @@ export const PageManager = {
     } else {
       this.showPage('dashboard');
     }
-    this.updateDashboard();
-    this.debugUserRoles();
-    this.setupRoleBasedUI();
+    // Usar setTimeout para asegurar que el DOM está listo
+    setTimeout(() => {
+      this.updateDashboard();
+      this.debugUserRoles();
+      this.setupRoleBasedUI();
+    }, 0);
   },
 
   async debugUserRoles() {
@@ -64,7 +67,10 @@ export const PageManager = {
 
   updateDashboard() {
     if (window.AppState.user) {
-      document.getElementById('user-name').textContent = window.AppState.user.name;
+      const userNameElement = document.getElementById('user-name');
+      if (userNameElement) {
+        userNameElement.textContent = window.AppState.user.name;
+      }
     }
   },
 
