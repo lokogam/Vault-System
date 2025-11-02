@@ -77,8 +77,8 @@ SecureVault es una aplicación web para la gestión segura de archivos que permi
 
 1. **Clonar el repositorio**:
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd EDU-LABS
+git clone https://github.com/lokogam/Vault-System.git
+cd Vault-System
 ```
 
 2. **Configuración inicial (solo la primera vez)**:
@@ -195,7 +195,7 @@ npm run dev
 ## 📁 Estructura del Proyecto
 
 ```
-EDU-LABS/
+Vault-System/
 ├── docker-compose.yml          # Orquestación de contenedores
 ├── README.md                   # Este archivo
 ├── start.bat                   # Script de inicio para Windows
