@@ -1,0 +1,108 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: securevault_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: secure
+      MYSQL_USER: securevault_user
+      MYSQL_PASSWORD: securevault_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - securevault_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Laravel Backend API
+  backend:
+    build:
+      context: ./SecureVault
+      dockerfile: Dockerfile
+    container_name: securevault_backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./SecureVault:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - securevault_network
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=secure
+      - DB_USERNAME=securevault_user
+      - DB_PASSWORD=securevault_password
+    command: >
+      sh -c "
+        composer install &&
+        php artisan key:generate &&
+        php artisan storage:link &&
+        php artisan migrate:fresh --seed &&
+        php artisan serve --host=0.0.0.0 --port=8000
+      "
+
+  # Vue.js Frontend
+  frontend:
+    build:
+      context: ./VaultUI
+      dockerfile: Dockerfile
+    container_name: securevault_frontend
+    restart: unless-stopped
+    volumes:
+      - ./VaultUI:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - securevault_network
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    command: >
+      sh -c "
+        npm install &&
+        npm run dev -- --host 0.0.0.0
+      "
+
+  # Nginx (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: securevault_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./VaultUI/dist:/var/www/frontend
+      - ./SecureVault/public:/var/www/backend
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - securevault_network
+    profiles:
+      - production
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  securevault_network:
+    driver: bridge
