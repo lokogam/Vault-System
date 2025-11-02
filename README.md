@@ -377,6 +377,6 @@ Este proyecto fue desarrollado como una prueba técnica siguiendo estrictamente 
 
 ## 👨‍💻 Desarrollado por
 
-LinkedIn: [Duvan Gamboa](https://www.linkedin.com/in/duvan-gamboa-5193951b2/)  
-Email: [duvangamboa8@gmail.com](mailto:duvangamboa8@gmail.com)
-Web: [Duvan-Gamboa](https://lokogam.github.io/Duvan-Gamboa/)
+- LinkedIn: [Duvan Gamboa](https://www.linkedin.com/in/duvan-gamboa-5193951b2/)  
+- Email: [duvangamboa8@gmail.com](mailto:duvangamboa8@gmail.com)
+- Web: [Duvan-Gamboa](https://lokogam.github.io/Duvan-Gamboa/)
