@@ -81,19 +81,66 @@ git clone <URL_DEL_REPOSITORIO>
 cd EDU-LABS
 ```
 
-2. **Ejecutar con Docker Compose**:
+2. **Configuración inicial (solo la primera vez)**:
+
+**Windows:**
+```cmd
+start.bat setup
+```
+
+**Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh setup
+```
+
+3. **Uso diario - Iniciar servicios**:
+
+**Windows:**
+```cmd
+start.bat start
+```
+
+**Linux/Mac:**
+```bash
+./start.sh start
+```
+
+4. **Acceder a la aplicación**:
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **MySQL**: localhost:3307
+
+### Comandos Docker Disponibles
+
+**Windows (start.bat):**
+- `setup` - Configuración inicial completa
+- `start` - Iniciar todos los servicios
+- `stop` - Detener todos los servicios
+- `restart` - Reiniciar servicios
+- `logs` - Ver logs en tiempo real
+- `fresh` - Resetear base de datos con datos iniciales
+- `build` - Reconstruir imágenes Docker
+- `clean` - Limpiar sistema Docker
+
+**Linux/Mac (start.sh):**
+Los mismos comandos usando `./start.sh [comando]`
+
+### Comandos Docker Manuales (Alternativa)
+
 ```bash
 # Iniciar todos los servicios
 docker-compose up -d
 
 # Ver logs en tiempo real
 docker-compose logs -f
-```
 
-3. **Acceder a la aplicación**:
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **Nginx (producción)**: http://localhost (opcional)
+# Detener servicios
+docker-compose down
+
+# Resetear base de datos
+docker-compose exec backend php artisan migrate:fresh --seed
+```
 
 ### Opción 2: Instalación Manual
 
@@ -233,6 +280,38 @@ EDU-LABS/
 | **backend** | 8000 | API Laravel con PHP 8.2 |
 | **frontend** | 5173 | Aplicación Vite con hot reload |
 | **nginx** | 80/443 | Servidor web (perfil producción) |
+
+### Configuración Docker Database
+- **Base de datos**: `secure`
+- **Usuario**: `securevault_user`
+- **Contraseña**: `securevault_password`
+- **Puerto externo**: `3307`
+- **Puerto interno**: `3306`
+
+### Solución de Problemas Docker
+
+**Error de permisos (Linux/Mac):**
+```bash
+chmod +x start.sh
+```
+
+**Resetear completamente:**
+```bash
+# Windows
+start.bat clean
+start.bat setup
+
+# Linux/Mac
+./start.sh clean
+./start.sh setup
+```
+
+**Ver logs de servicio específico:**
+```bash
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f mysql
+```
 
 ## 📊 Variables de Entorno
 
